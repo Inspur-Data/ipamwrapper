@@ -18,7 +18,7 @@ k8-ipam是一个 kubernetes 的 IPAM 插件项目， 针对云原生网络的 IP
 
 ## 架构
 
- ![](.\docs\images\架构图.png)
+ ![](./docs/images/架构图.png)
 
 如上架构图所示，k8-ipam主要由三个部分构成：
 
