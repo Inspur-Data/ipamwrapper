@@ -2,7 +2,9 @@
 
 ## 介绍
 
-k8-ipam是一个 kubernetes 的 IPAM 插件项目， 针对云原生网络的 IP 地址管理需求而设计，并且可以与开源社区中主流开源CNI项目兼容，如Calico、Cilium、kube-ovn等，为其提供IP地址管理功能。当前开源社区中已有部分IPAM项目，典型的如whereabouts、calico-ipam，暂时还没有一个IPAM插件可以满足云原生场景中的所有IPAM需求，例如Pod固定IP功能，虽然Calico-ipam和kube-ovn可以实现该功能，但都通过hard-code方式实现，灵活性较低。k8-ipam旨在解决云原生场景中Pod固定IP、子网、定制化路由、IPv4/IPv6双栈、预留IP等需求，并基于kubernetes CRD进行管理，极大简化IPAM的运维管理工作。
+k8-ipam是一个 kubernetes 网络项目， 其设计目标是能够作为所有主流CNI插件的IPAM（如Calico、Cilium、Kube-OVN等），并提供丰富的功能来实现对这些CNI插件原有IP管理能力的增强。
+基于K8S的云平台通常支持多个CNI插件，比如Calico/Kube-OVN/Cilium等，这些插件实现方案不同，功能、性能也有差异，能够满足不同场景的需求。但多CNI插件也带来了技术栈广、运维和升级复杂的问题，对于云平台开发和运维人员带来了很大的技术挑战，也在一定程度上制约了云平台去兼容使用更多的CNI插件。为优化上述问题，我们基于广泛的生产场景分析，以及在CNCF社区相关项目上持续跟进获得的技术积累，提出分层解耦的方案去统一各CNI插件中与差异技术无关的功能模块，从而有效减小技术复杂度，为用户带来统一的功能体验。k8-ipam即是在这一思想指导下开发实现的多CNI统一IP管理模块。
+k8-ipam基于kubernetes CRD进行管理，同时其也提供插件化扩展机制，在其基础上能够集成其他多CNI统一功能解决方案，比如Calico/Kube-OVN/Cilium都用到的BGP能力等。
 
 ## 关键功能
 
