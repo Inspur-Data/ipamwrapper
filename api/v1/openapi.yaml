@@ -1,0 +1,182 @@
+swagger: "2.0"
+info:
+  description: k8-ipam Agent
+  title: k8-ipam Agent API
+  version: v1
+x-schemes:
+  - unix
+basePath: "/v1"
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  "/healthy":
+    get:
+      summary: Get health of k8-ipam agent
+      description: |
+        Check the agent health to make sure whether it's ready
+        for CNI plugin usage
+      tags:
+        - health-check
+      responses:
+        "200":
+          description: Success
+        "500":
+          description: Failed
+  "/ipam":
+    post:
+      summary: Alloc ip from k8-ipam
+      description: |
+        Send a request to k8-ipam to alloc an ip
+      tags:
+        - k8-ipam-agent
+      parameters:
+        - name: ipam-alloc-args
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/IpamAllocArgs"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/IpamAllocResponse"
+        '500':
+          description: Allocation failure
+          x-go-name: Failure
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      summary: Delete ip from k8-ipam
+      description: |
+        Send a request to k8-ipam to delete an ip
+      tags:
+        - k8-ipam-agent
+      parameters:
+        - name: ipam-del-args
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/IpamDelArgs"
+      responses:
+        "200":
+          description: Success
+        '500':
+          description: Addresses release failure
+          x-go-name: Failure
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  Error:
+    description: API error
+    type: string
+  IpamAllocArgs:
+    description: Alloc IP request args
+    type: object
+    properties:
+      containerID:
+        type: string
+      ifName:
+        type: string
+      netNamespace:
+        type: string
+      podNamespace:
+        type: string
+      podName:
+        type: string
+    required:
+      - containerID
+      - ifName
+      - netNamespace
+      - podNamespace
+      - podName
+  IpamAllocResponse:
+    description: Alloc IP information
+    type: object
+    properties:
+      ip:
+        type: object
+        $ref: "#/definitions/IpConfig"
+      route:
+        type: object
+        $ref: "#/definitions/Route"
+      dns:
+        type: object
+        $ref: "#/definitions/DNS"
+    required:
+      - ip
+  IpamDelArgs:
+    description: Delete IP information
+    type: object
+    properties:
+      containerID:
+        type: string
+      ifName:
+        type: string
+      netNamespace:
+        type: string
+      podNamespace:
+        type: string
+      podName:
+        type: string
+    required:
+      - containerID
+      - ifName
+      - podNamespace
+      - podName
+  DNS:
+    description: k8-ipam DNS
+    type: object
+    properties:
+      domain:
+        type: string
+      nameservers:
+        type: array
+        items:
+          type: string
+      options:
+        type: array
+        items:
+          type: string
+      search:
+        type: array
+        items:
+          type: string
+  Route:
+    description: k8-ipam Route
+    type: object
+    properties:
+      ifName:
+        type: string
+      dst:
+        type: string
+      gw:
+        type: string
+    required:
+      - ifName
+      - dst
+      - gw
+  IpConfig:
+    description: IP struct
+    type: object
+    properties:
+      version:
+        type: integer
+        enum:
+          - 4
+          - 6
+      address:
+        type: string
+      ipPool:
+        type: string
+      gateway:
+        type: string
+      nic:
+        type: string
+      vlan:
+        type: integer
+    required:
+      - version
+      - address
+      - nic
