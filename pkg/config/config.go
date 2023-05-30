@@ -5,12 +5,13 @@ import (
 	logging "github.com/Inspur-Data/k8-ipam/pkg/logging"
 )
 
+//ParseConfig the args in []byte to CNIConf
 func ParseConfig(args []byte) (*CNIConf, error) {
 	cniConfig := &CNIConf{}
 	err := json.Unmarshal(args, cniConfig)
 	if err != nil {
-		logging.Debugf("json unmarshal failed: %v", err)
-		return nil, logging.Errorf("json unmarshal failed: %v", err)
+		logging.Errorf("json unmarshal failed: %v", err)
+		return nil, err
 	}
 	if cniConfig.IPAM.LogFile != "" {
 		logging.SetLogFile(cniConfig.IPAM.LogFile)

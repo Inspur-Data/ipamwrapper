@@ -6,6 +6,7 @@ package ip
 import (
 	"bytes"
 	"fmt"
+	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 	"net"
 	"sort"
 	"strings"
@@ -80,7 +81,7 @@ func ConvertIPsToIPRanges(version constant.IPVersion, ips []net.IP) ([]string, e
 	for _, ip := range ips {
 		if (version == constant.IPv4 && ip.To4() == nil) ||
 			(version == constant.IPv6 && ip.To4() != nil) {
-			return nil, fmt.Errorf("%wv%d IP '%s'", ErrInvalidIP, version, ip.String())
+			return nil, logging.Errorf("%wv%d IP '%s'", ErrInvalidIP, version, ip.String())
 		}
 		set[ip.String()] = struct{}{}
 	}
@@ -180,7 +181,7 @@ func IsIPRange(version constant.IPVersion, ipRange string) error {
 
 	if (version == constant.IPv4 && !IsIPv4IPRange(ipRange)) ||
 		(version == constant.IPv6 && !IsIPv6IPRange(ipRange)) {
-		return fmt.Errorf("%w in IPv%d '%s'", ErrInvalidIPRangeFormat, version, ipRange)
+		return logging.Errorf("%w in IPv%d '%s'", ErrInvalidIPRangeFormat, version, ipRange)
 	}
 
 	return nil

@@ -4,7 +4,7 @@
 package ip
 
 import (
-	"fmt"
+	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 
 	"github.com/Inspur-Data/k8-ipam/pkg/constant"
 	"github.com/asaskevich/govalidator"
@@ -19,7 +19,7 @@ func IsRoute(version constant.IPVersion, dst, gw string) error {
 
 	if (version == constant.IPv4 && !IsIPv4Route(dst, gw)) ||
 		(version == constant.IPv6 && !IsIPv6Route(dst, gw)) {
-		return fmt.Errorf("%w in IPv%d 'dst: %s, gw: %s'", ErrInvalidRouteFormat, version, dst, gw)
+		return logging.Errorf("%w in IPv%d 'dst: %s, gw: %s'", ErrInvalidRouteFormat, version, dst, gw)
 	}
 
 	return nil
@@ -29,7 +29,7 @@ func IsRoute(version constant.IPVersion, dst, gw string) error {
 // an route.
 func IsRouteWithoutIPVersion(dst, gw string) error {
 	if !IsIPv4Route(dst, gw) && !IsIPv6Route(dst, gw) {
-		return fmt.Errorf("%w 'dst: %s, gw: %s'", ErrInvalidRouteFormat, dst, gw)
+		return logging.Errorf("%w 'dst: %s, gw: %s'", ErrInvalidRouteFormat, dst, gw)
 	}
 
 	return nil

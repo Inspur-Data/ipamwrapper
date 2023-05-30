@@ -4,7 +4,7 @@
 package ip
 
 import (
-	"fmt"
+	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 	"net"
 
 	"github.com/Inspur-Data/k8-ipam/pkg/constant"
@@ -76,7 +76,7 @@ func IsCIDR(version constant.IPVersion, subnet string) error {
 
 	if (version == constant.IPv4 && !IsIPv4CIDR(subnet)) ||
 		(version == constant.IPv6 && !IsIPv6CIDR(subnet)) {
-		return fmt.Errorf("%w in IPv%d '%s'", ErrInvalidCIDRFormat, version, subnet)
+		return logging.Errorf("%w in IPv%d '%s'", ErrInvalidCIDRFormat, version, subnet)
 	}
 
 	return nil

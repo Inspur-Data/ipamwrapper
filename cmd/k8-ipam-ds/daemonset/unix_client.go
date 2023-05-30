@@ -1,4 +1,4 @@
-package k8_ipam_ds
+package daemonset
 
 import (
 	"context"

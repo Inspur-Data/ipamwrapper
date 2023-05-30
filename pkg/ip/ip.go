@@ -5,7 +5,7 @@ package ip
 
 import (
 	"bytes"
-	"fmt"
+	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 	"math/big"
 	"net"
 	"sort"
@@ -18,7 +18,7 @@ import (
 // IsIPVersion reports whether version is a valid IP version (4 or 6).
 func IsIPVersion(version constant.IPVersion) error {
 	if version != constant.IPv4 && version != constant.IPv6 {
-		return fmt.Errorf("%w '%d'", ErrInvalidIPVersion, version)
+		return logging.Errorf("%w '%d'", ErrInvalidIPVersion, version)
 	}
 
 	return nil
@@ -70,7 +70,7 @@ func IsIP(version constant.IPVersion, s string) error {
 
 	if (version == constant.IPv4 && !govalidator.IsIPv4(s)) ||
 		(version == constant.IPv6 && !govalidator.IsIPv6(s)) {
-		return fmt.Errorf("%w in IPv%d '%s'", ErrInvalidIPFormat, version, s)
+		return logging.Errorf("%w in IPv%d '%s'", ErrInvalidIPFormat, version, s)
 	}
 
 	return nil

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"github.com/Inspur-Data/k8-ipam/api/v1/client/k8_ipam_agent"
 	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	"github.com/Inspur-Data/k8-ipam/cmd/k8-ipam-ds"
+	"github.com/Inspur-Data/k8-ipam/cmd/k8-ipam-ds/daemonset"
 	"github.com/Inspur-Data/k8-ipam/pkg/config"
-	k8IpamIP "github.com/Inspur-Data/k8-ipam/pkg/ip"
+	ipTools "github.com/Inspur-Data/k8-ipam/pkg/ip"
 	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types"
@@ -24,6 +24,7 @@ import (
 var version string
 
 func main() {
+	logging.Debugf("main function will start.....")
 	skel.PluginMain(cmdAdd, cmdCheck, cmdDel, cniSpecVersion.All, fmt.Sprintf("k8-ipam version %s", version))
 }
 
@@ -35,7 +36,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 	logging.Debugf("Enter cmdAdd function")
 	cniConfig, err := config.ParseConfig(args.StdinData)
 	if err != nil {
-		return logging.Errorf("ParseConfig failed")
+		return logging.Errorf("ParseConfig failed:%v", err)
 	}
 
 	cniConfig.IPAM.Type = ""
@@ -47,8 +48,9 @@ func cmdAdd(args *skel.CmdArgs) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	//init a http client
-	unixAgentAPI, err := k8_ipam_ds.NewAgentOpenAPIUnixClient("")
+	//init a unix client
+	//todo unixSocketPath
+	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient("")
 	if nil != err {
 		return logging.Errorf("failed to create agent client: %v", err)
 	}
@@ -63,20 +65,20 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	ipamResponse, err := unixAgentAPI.K8IpamAgent.PostIpam(param)
 	if nil != err {
-		logging.Debugf("Post ipam alloc failed:%v", err)
+		logging.Errorf("Post ipam alloc failed:%v", err)
 		return err
 	}
 
 	// check the  request response.
 	if err = ipamResponse.Payload.Validate(strfmt.Default); nil != err {
-		logging.Debugf("Check the response failed:%v", err)
+		logging.Errorf("Check the response failed:%v", err)
 		return err
 	}
 
 	//convert the response
 	res, err := convertRes(cniConfig.CNIVersion, ipamResponse, args.IfName)
 	if err != nil {
-		logging.Debugf("Convert the response failed:%v", err)
+		logging.Errorf("Convert the response failed:%v", err)
 		return err
 	}
 
@@ -85,6 +87,43 @@ func cmdAdd(args *skel.CmdArgs) error {
 }
 
 func cmdDel(args *skel.CmdArgs) error {
+	logging.Debugf("Enter cmdDel function")
+	cniConfig, err := config.ParseConfig(args.StdinData)
+	if err != nil {
+		return logging.Errorf("ParseConfig failed")
+	}
+
+	cniConfig.IPAM.Type = ""
+	podArgs := config.PodArgs{}
+	if err = types.LoadArgs(args.Args, &podArgs); nil != err {
+		return logging.Errorf("Load Pod args failed:%v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	//init a unix client
+	//todo unixSockerPath
+	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient("")
+	if nil != err {
+		return logging.Errorf("failed to create agent client: %v", err)
+	}
+
+	param := k8_ipam_agent.NewDeleteIpamParams().WithContext(ctx).WithIpamDelArgs(&models.IpamDelArgs{
+		ContainerID:  &args.ContainerID,
+		IfName:       &args.IfName,
+		NetNamespace: args.Netns,
+		PodName:      (*string)(&podArgs.K8S_POD_NAME),
+		PodNamespace: (*string)(&podArgs.K8S_POD_NAMESPACE),
+	})
+
+	_, err = unixAgentAPI.K8IpamAgent.DeleteIpam(param)
+	if nil != err {
+		logging.Errorf("Delete ip failed:%v", err)
+		return err
+	}
+
+	logging.Debugf("Delete IP success")
 	return nil
 }
 
@@ -97,9 +136,9 @@ func convertRes(cniVersion string, response *k8_ipam_agent.PostIpamOK, interface
 	ip := response.Payload.IP
 	if ip != nil {
 		if *ip.Nic == interfaceName {
-			address, err := k8IpamIP.ParseIP(*ip.Version, *ip.Address, true)
+			address, err := ipTools.ParseIP(*ip.Version, *ip.Address, true)
 			if err != nil {
-				return nil, err
+				return nil, logging.Errorf("ParseIP failed %v", err)
 			}
 			result.IPs = append(result.IPs, &cniTypesV1.IPConfig{
 				Address: *address,
@@ -114,7 +153,7 @@ func convertRes(cniVersion string, response *k8_ipam_agent.PostIpamOK, interface
 		if *route.IfName == interfaceName {
 			_, dst, err := net.ParseCIDR(*route.Dst)
 			if err != nil {
-				return nil, err
+				return nil, logging.Errorf("Parse CIDR failed %v", err)
 			}
 			result.Routes = append(result.Routes, &types.Route{
 				Dst: *dst,
