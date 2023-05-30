@@ -26,26 +26,15 @@ func (g *unixPostIpStruct) Handle(params k8IPAMServerAgent.PostIpamParams) middl
 
 	}
 
-	//todo
-	//实现申请IP真正逻辑
-	/*
-		resp, err := agentContext.IPAM.Allocate(ctx, params.IpamAddArgs)
-		if err != nil {
-			// The count of failures in IP allocations.
-			metric.IpamAllocationFailureCounts.Add(ctx, 1)
-			gatherIPAMAllocationErrMetric(ctx, err)
-			logger.Error(err.Error())
+	//todo 实现申请IP真正逻辑
 
-			return daemonset.NewPostIpamIPFailure().WithPayload(models.Error(err.Error()))
-		}*/
-
-	//return k8_ipam_agent.NewPostIpamOK().GetPayload()
 	resp := models.IpamAllocResponse{}
 	return k8IPAMServerAgent.NewPostIpamOK().WithPayload(&resp)
 }
 
 type unixDeleteIpStruct struct{}
 
+// Handle implement the logic about release ip,path: /ipam/ip.
 func (g *unixDeleteIpStruct) Handle(params k8IPAMServerAgent.DeleteIpamParams) middleware.Responder {
 	if err := params.IpamDelArgs.Validate(strfmt.Default); err != nil {
 		return k8IPAMServerAgent.NewDeleteIpamFailure().WithPayload(models.Error(err.Error()))

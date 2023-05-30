@@ -28,9 +28,8 @@ func NewAgentOpenAPIUnixServer() (*k8IPAMRestapi.Server, error) {
 	// new agent OpenAPI server with api
 	srv := k8IPAMRestapi.NewServer(api)
 
-	// set spiderpool-agent Unix server with specified unix socket path.
-	//todo set the unixSocketPath
-	srv.SocketPath = flags.Filename("")
+	// set Unix server with specified unix socket path.
+	srv.SocketPath = flags.Filename(ConfigInstance.IpamUnixSocketPath)
 
 	// configure API and handlers with some default values.
 	srv.ConfigureAPI()

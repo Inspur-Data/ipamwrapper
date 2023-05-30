@@ -12,10 +12,11 @@ type CNIConf struct {
 	IPAM       *IPAMConf `json:"ipam"`
 }
 type IPAMConf struct {
-	Type     string   `json:"type"`
-	Routes   []string `json:"routes"`
-	LogFile  string   `json:"log_file"`
-	LogLevel string   `json:"log_level"`
+	Type           string   `json:"type"`
+	Routes         []string `json:"routes"`
+	LogFile        string   `json:"log_file"`
+	LogLevel       string   `json:"log_level"`
+	UnixSocketPath string   `json:"unix_socket_path"`
 }
 
 var SupportCniVersion = []string{"0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.4.0", "1.0.0"}

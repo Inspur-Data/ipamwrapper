@@ -49,8 +49,8 @@ func cmdAdd(args *skel.CmdArgs) error {
 	defer cancel()
 
 	//init a unix client
-	//todo unixSocketPath
-	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient("")
+	//todo add socketPath
+	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient(config.CniConfig.IPAM.UnixSocketPath)
 	if nil != err {
 		return logging.Errorf("failed to create agent client: %v", err)
 	}
@@ -104,7 +104,7 @@ func cmdDel(args *skel.CmdArgs) error {
 
 	//init a unix client
 	//todo unixSockerPath
-	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient("")
+	unixAgentAPI, err := daemonset.NewAgentOpenAPIUnixClient(config.CniConfig.IPAM.UnixSocketPath)
 	if nil != err {
 		return logging.Errorf("failed to create agent client: %v", err)
 	}

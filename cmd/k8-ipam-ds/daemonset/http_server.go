@@ -1,7 +1,6 @@
-package daemonset
-
 // Copyright 2022 Authors of Inspur
 // SPDX-License-Identifier: Apache-2.0
+package daemonset
 
 import (
 	"strconv"
@@ -34,7 +33,7 @@ func NewIPAMHttpServer() (*k8IPAMRestapi.Server, error) {
 	// In config file openapi.yaml, we already set x-schemes with value 'unix', so we need set Http server's listener with value 'http'.
 	srv.EnabledListeners = k8IPAMClient.DefaultSchemes
 	//todo port need to set
-	port, err := strconv.Atoi("5000")
+	port, err := strconv.Atoi(ConfigInstance.HttpPort)
 	if nil != err {
 		return nil, err
 	}

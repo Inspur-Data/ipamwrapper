@@ -2,7 +2,7 @@ package daemonset
 
 import (
 	"context"
-	"fmt"
+	"github.com/Inspur-Data/k8-ipam/pkg/logging"
 	"net"
 	"net/http"
 
@@ -15,7 +15,7 @@ import (
 // NewAgentOpenAPIUnixClient creates a new instance of the agent OpenAPI unix client.
 func NewAgentOpenAPIUnixClient(unixSocketPath string) (*openAPIClient.K8IpamAgentAPI, error) {
 	if unixSocketPath == "" {
-		return nil, fmt.Errorf("unix socket path must be specified")
+		return nil, logging.Errorf("unix socket path is nil")
 	}
 
 	httpClient := &http.Client{

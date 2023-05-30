@@ -24,3 +24,14 @@ func main() {
 		}
 	}()
 }
+func init() {
+	err := daemonset.ParseConfiguration()
+	if err != nil {
+		logging.Panicf("ParseConfig failed: %v", err)
+	}
+
+	err = daemonset.LoadConfigmap()
+	if err != nil {
+		logging.Panicf("Loadconfigmap failed: %v", err)
+	}
+}
