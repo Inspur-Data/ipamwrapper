@@ -13,11 +13,11 @@ package logging
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"os"
+	"runtime"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // Level type
@@ -55,14 +55,16 @@ func (l Level) String() string {
 
 // Printf provides basic Printf functionality for logs
 func Printf(level Level, format string, a ...interface{}) {
-	header := "%s [%s] "
+	_, file, line, _ := runtime.Caller(0)
+	//file = filepath.Base(file)
+	header := "%s [%s] %s:%d "
 	t := time.Now()
 	if level > loggingLevel {
 		return
 	}
 
 	if loggingStderr {
-		fmt.Fprintf(os.Stderr, header, t.Format(defaultTimestampFormat), level)
+		fmt.Fprintf(os.Stderr, header, t.Format(defaultTimestampFormat), level, file, line)
 		fmt.Fprintf(os.Stderr, format, a...)
 		fmt.Fprintf(os.Stderr, "\n")
 	}
@@ -94,7 +96,7 @@ func Errorf(format string, a ...interface{}) error {
 func Panicf(format string, a ...interface{}) {
 	Printf(PanicLevel, format, a...)
 	Printf(PanicLevel, "========= Stack trace output ========")
-	Printf(PanicLevel, "%+v", errors.New("Whereabouts Panic"))
+	Printf(PanicLevel, "%+v", errors.New("IPAM Panic"))
 	Printf(PanicLevel, "========= Stack trace output end ========")
 }
 
@@ -114,7 +116,7 @@ func getLoggingLevel(levelStr string) Level {
 	case "panic":
 		return PanicLevel
 	}
-	fmt.Fprintf(os.Stderr, "Whereabouts logging: cannot set logging level to %s\n", levelStr)
+	fmt.Fprintf(os.Stderr, "IPAM logging: cannot set logging level to %s\n", levelStr)
 	return UnknownLevel
 }
 
@@ -140,7 +142,7 @@ func SetLogFile(filename string) {
 	fp, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		loggingFp = nil
-		fmt.Fprintf(os.Stderr, "Whereabouts logging: cannot open %s", filename)
+		fmt.Fprintf(os.Stderr, "IPAM logging: cannot open %s", filename)
 	}
 	loggingFp = fp
 }

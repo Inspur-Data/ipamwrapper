@@ -15,4 +15,5 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	gopkg.in/yaml.v3 v3.0.1
 )

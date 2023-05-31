@@ -25,6 +25,7 @@ var version string
 
 func main() {
 	logging.Debugf("main function will start.....")
+	//test()
 	skel.PluginMain(cmdAdd, cmdCheck, cmdDel, cniSpecVersion.All, fmt.Sprintf("k8-ipam version %s", version))
 }
 

@@ -7,23 +7,26 @@ import (
 )
 
 func main() {
-	srv, err := daemonset.NewAgentOpenAPIUnixServer()
+	logging.Debugf("http server will start.....")
+	//srv, err := daemonset.NewAgentOpenAPIUnixServer()
+	srv, err := daemonset.NewIPAMHttpServer()
 	if err != nil {
 		logging.Errorf("get unix server instance failed:%v", err)
 		return
 	}
 
-	go func() {
-		logging.Debugf("start a k8ipam unix server")
-		err := srv.Serve()
-		if err != nil {
-			if err == http.ErrServerClosed {
-				return
-			}
-			logging.Panicf("start a k8ipam unix server failed: %v", err)
+	logging.Debugf("start a k8ipam unix server")
+	err = srv.Serve()
+	if err != nil {
+		if err == http.ErrServerClosed {
+			return
 		}
-	}()
+		logging.Panicf("start a k8ipam unix server failed: %v", err)
+	}
+
 }
+
+/*
 func init() {
 	err := daemonset.ParseConfiguration()
 	if err != nil {
@@ -35,3 +38,4 @@ func init() {
 		logging.Panicf("Loadconfigmap failed: %v", err)
 	}
 }
+*/

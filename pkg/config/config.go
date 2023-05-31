@@ -20,7 +20,7 @@ func ParseConfig(args []byte) (*CNIConf, error) {
 		logging.SetLogFile(CniConfig.IPAM.LogFile)
 	}
 	if CniConfig.IPAM.LogLevel != "" {
-		logging.SetLogLevel(cniConfig.IPAM.LogLevel)
+		logging.SetLogLevel(CniConfig.IPAM.LogLevel)
 	}
 
 	if CniConfig.IPAM == nil {
