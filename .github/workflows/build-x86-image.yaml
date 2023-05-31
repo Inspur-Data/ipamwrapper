@@ -3,7 +3,6 @@ name: Build x86 Image
 on:
   pull_request:
     branches:
-    - master
     - main
     paths-ignore:
     - 'docs/**'
