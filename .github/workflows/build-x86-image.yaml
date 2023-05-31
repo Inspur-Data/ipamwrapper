@@ -18,8 +18,6 @@ on:
 jobs:
   build-and-push-imag-k8-ipam:
     runs-on: ubuntu-20.04
-    env:
-      IMAGE_NAME: hub.docker.com/inspurwyd/ks-plugin
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -27,20 +25,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to Docker
-        uses: docker/login-action@v1
-        with:
-          registry: hub.docker.com
-          username: inspurwyd
-          password: dckr_pat_yMRt21vCZj0PlDl14xJiqSOHeVg
+      - name: Build  k8-ipam bin
+        run: |
+          go mod tidy
+          git diff --exit-code
+          make build-k8-ipam
+      - name: Build  k8-ipam
+          run: |
+            go mod tidy
+            git diff --exit-code
+            make build-k8-ipam
 
-      - name: Build and push sriov-network-operator
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-          file: ./Dockerfile
+      - name: Login to Docker
+          uses: docker/login-action@v1
+          with:
+            registry: hub.docker.com
+            username: inspurwyd
+            password: dckr_pat_yMRt21vCZj0PlDl14xJiqSOHeVg
+
+      - name: Push
+          run: |
+            cat VERSION
+            TAG=$(cat VERSION)
+            docker tag Inspur-Data/k8-ipam:$TAG inspurwyd/k8-ipam:$TAG
+            docker push inspurwyd/k8-ipam:$TAG
+
     
 
