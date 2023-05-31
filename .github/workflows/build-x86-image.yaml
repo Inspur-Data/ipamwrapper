@@ -1,0 +1,19 @@
+name: Build x86 Image
+
+on:
+  pull_request:
+    branches:
+    - master
+    - release-*
+    paths-ignore:
+    - 'docs/**'
+    - '**.md'
+    
+  push:
+    branches:
+    - maste
+    - release-*
+    paths-ignore:
+    - 'docs/**'
+    - '**.md'
+    
