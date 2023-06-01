@@ -35,13 +35,10 @@ jobs:
             go mod tidy
             git diff --exit-code
             make build-k8-ipam
-
+            
       - name: Login to Docker
-        uses: docker/login-action@v1
-        with:
-            registry: hub.docker.com
-            username: inspurwyd
-            password: dckr_pat_yMRt21vCZj0PlDl14xJiqSOHeVg
+        run: |
+           docker login -u inspurwyd  -p  dckr_pat_yMRt21vCZj0PlDl14xJiqSOHeVg
 
       - name: Push
         run: |
