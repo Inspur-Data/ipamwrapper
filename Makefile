@@ -1,6 +1,6 @@
 SHELL = /usr/bin/env bash -o pipefail
 # Current ipam version
-VERSION = 0.0.1
+VERSION = 0.1.0
 RELEASE_TAG = $(shell cat VERSION)
 DATE = $(shell date +"%Y-%m-%d_%H:%M:%S")
 REGISTRY = inspurwyd
@@ -15,6 +15,7 @@ GLDFLAGS+="-X ${REPO}/pkg/version.Raw=${VERSION_OVERRIDE}"
 build-bin:
 	go mod tidy
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-cni
 
 .PHONY: build-k8-ipam
 build-k8-ipam: build-bin
