@@ -22,7 +22,7 @@ type unixPostIpStruct struct{}
 
 // Handle implement the logic about allocate ip,path: /ipam
 func (g *unixPostIpStruct) Handle(params k8IPAMServerAgent.PostIpamParams) middleware.Responder {
-	logging.Debugf("Enter post handle function")
+	logging.Debugf("Enter post handle function,the ipamAllocParams is: %v", params.IpamAllocArgs)
 	if err := params.IpamAllocArgs.Validate(strfmt.Default); err != nil {
 		logging.Errorf("post param is invalid: %v", params)
 		return k8IPAMServerAgent.NewPostIpamFailure().WithPayload(models.Error(err.Error()))
