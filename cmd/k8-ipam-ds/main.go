@@ -23,10 +23,8 @@ func main() {
 		}
 		logging.Panicf("start a k8ipam unix server failed: %v", err)
 	}
-
 }
 
-/*
 func init() {
 	err := daemonset.ParseConfiguration()
 	if err != nil {
@@ -38,4 +36,3 @@ func init() {
 		logging.Panicf("Loadconfigmap failed: %v", err)
 	}
 }
-*/

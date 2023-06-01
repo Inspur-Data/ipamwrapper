@@ -21,7 +21,7 @@ import (
 )
 
 // version means k8-ipam released version.
-var version string
+var version = "0.1.0"
 
 func main() {
 	logging.Debugf("main function will start.....")

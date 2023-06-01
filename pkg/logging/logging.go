@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -55,8 +56,8 @@ func (l Level) String() string {
 
 // Printf provides basic Printf functionality for logs
 func Printf(level Level, format string, a ...interface{}) {
-	_, file, line, _ := runtime.Caller(0)
-	//file = filepath.Base(file)
+	_, file, line, _ := runtime.Caller(2)
+	file = filepath.Base(file)
 	header := "%s [%s] %s:%d "
 	t := time.Now()
 	if level > loggingLevel {
