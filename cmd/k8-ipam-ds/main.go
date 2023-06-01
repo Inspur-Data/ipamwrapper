@@ -8,8 +8,8 @@ import (
 
 func main() {
 	logging.Debugf("http server will start.....")
-	//srv, err := daemonset.NewAgentOpenAPIUnixServer()
-	srv, err := daemonset.NewIPAMHttpServer()
+	srv, err := daemonset.NewAgentOpenAPIUnixServer()
+	// srv, err := daemonset.NewIPAMHttpServer()
 	if err != nil {
 		logging.Errorf("get unix server instance failed:%v", err)
 		return
