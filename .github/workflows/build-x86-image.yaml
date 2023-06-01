@@ -47,7 +47,6 @@ jobs:
         run: |
             cat VERSION
             TAG=$(cat VERSION)
-            docker tag Inspur-Data/k8-ipam:$TAG inspurwyd/k8-ipam:$TAG
             docker push inspurwyd/k8-ipam:$TAG
 
     
