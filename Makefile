@@ -14,7 +14,7 @@ GLDFLAGS+="-X ${REPO}/pkg/version.Raw=${VERSION_OVERRIDE}"
 .PHONY: build-bin
 build-bin:
 	go mod tidy
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o /bin/images/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/images/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
 
 .PHONY: build-k8-ipam
 build-k8-ipam: build-bin
