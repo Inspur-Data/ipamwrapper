@@ -1,6 +1,6 @@
 module github.com/Inspur-Data/k8-ipam
 
-go 1.9
+go 1.19
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2

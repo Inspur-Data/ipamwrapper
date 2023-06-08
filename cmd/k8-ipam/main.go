@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/Inspur-Data/k8-ipam/api/v1/client/k8_ipam_agent"
 	"github.com/Inspur-Data/k8-ipam/api/v1/models"
@@ -40,7 +41,6 @@ func cmdAdd(args *skel.CmdArgs) error {
 		return logging.Errorf("ParseConfig failed:%v", err)
 	}
 
-	cniConfig.IPAM.Type = ""
 	podArgs := config.PodArgs{}
 	if err = types.LoadArgs(args.Args, &podArgs); nil != err {
 		return logging.Errorf("Load Pod args failed:%v", err)
@@ -56,6 +56,14 @@ func cmdAdd(args *skel.CmdArgs) error {
 		return logging.Errorf("failed to create agent client: %v", err)
 	}
 
+	//marshal IPAM param to string and assign to post body
+	ipamByte, err := json.Marshal(cniConfig.IPAM)
+	if err != nil {
+		logging.Errorf("marshal IPAM param failed:%v", err)
+	}
+
+	ipamStr := string(ipamByte)
+	logging.Debugf("IPAM param :%V", ipamStr)
 	param := k8_ipam_agent.NewPostIpamParams().WithContext(ctx).WithIpamAllocArgs(&models.IpamAllocArgs{
 		ContainerID:  &args.ContainerID,
 		IfName:       &args.IfName,
