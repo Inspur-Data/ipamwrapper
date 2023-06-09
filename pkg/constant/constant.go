@@ -37,3 +37,7 @@ const (
 	PodDeleted     = "Deleted"
 	PodUnknown     = "Unknown"
 )
+
+const (
+	IPAMFinalizer = "inspur.io"
+)
