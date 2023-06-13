@@ -12,7 +12,6 @@ import (
 
 	"github.com/Inspur-Data/k8-ipam/api/v1/models"
 )
-
 // DeleteIpamOKCode is the HTTP code returned for type DeleteIpamOK
 const DeleteIpamOKCode int = 200
 

@@ -27,6 +27,9 @@ type IpamAllocArgs struct {
 	// Required: true
 	IfName *string `json:"ifName"`
 
+	// ipam
+	Ipam string `json:"ipam,omitempty"`
+
 	// net namespace
 	// Required: true
 	NetNamespace *string `json:"netNamespace"`

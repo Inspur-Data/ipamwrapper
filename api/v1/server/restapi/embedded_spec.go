@@ -195,6 +195,9 @@ func init() {
         "ifName": {
           "type": "string"
         },
+        "ipam": {
+          "type": "string"
+        },
         "netNamespace": {
           "type": "string"
         },
@@ -210,20 +213,24 @@ func init() {
       "description": "Alloc IP information",
       "type": "object",
       "required": [
-        "ip"
+        "ips"
       ],
       "properties": {
         "dns": {
           "type": "object",
           "$ref": "#/definitions/DNS"
         },
-        "ip": {
-          "type": "object",
-          "$ref": "#/definitions/IpConfig"
+        "ips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IpConfig"
+          }
         },
-        "route": {
-          "type": "object",
-          "$ref": "#/definitions/Route"
+        "routes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Route"
+          }
         }
       }
     },
@@ -457,6 +464,9 @@ func init() {
         "ifName": {
           "type": "string"
         },
+        "ipam": {
+          "type": "string"
+        },
         "netNamespace": {
           "type": "string"
         },
@@ -472,20 +482,24 @@ func init() {
       "description": "Alloc IP information",
       "type": "object",
       "required": [
-        "ip"
+        "ips"
       ],
       "properties": {
         "dns": {
           "type": "object",
           "$ref": "#/definitions/DNS"
         },
-        "ip": {
-          "type": "object",
-          "$ref": "#/definitions/IpConfig"
+        "ips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IpConfig"
+          }
         },
-        "route": {
-          "type": "object",
-          "$ref": "#/definitions/Route"
+        "routes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Route"
+          }
         }
       }
     },

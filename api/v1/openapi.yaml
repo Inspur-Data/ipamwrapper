@@ -85,6 +85,8 @@ definitions:
         type: string
       podName:
         type: string
+      ipam:
+        type: string
     required:
       - containerID
       - ifName
@@ -95,17 +97,19 @@ definitions:
     description: Alloc IP information
     type: object
     properties:
-      ip:
-        type: object
-        $ref: "#/definitions/IpConfig"
-      route:
-        type: object
-        $ref: "#/definitions/Route"
+      ips:
+        type: array
+        items:
+          $ref: "#/definitions/IpConfig"
+      routes:
+        type: array
+        items:
+          $ref: "#/definitions/Route"
       dns:
         type: object
         $ref: "#/definitions/DNS"
     required:
-      - ip
+      - ips
   IpamDelArgs:
     description: Delete IP information
     type: object

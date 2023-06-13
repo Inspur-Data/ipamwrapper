@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -22,12 +23,12 @@ type IpamAllocResponse struct {
 	// dns
 	DNS *DNS `json:"dns,omitempty"`
 
-	// ip
+	// ips
 	// Required: true
-	IP *IPConfig `json:"ip"`
+	Ips []*IPConfig `json:"ips"`
 
-	// route
-	Route *Route `json:"route,omitempty"`
+	// routes
+	Routes []*Route `json:"routes"`
 }
 
 // Validate validates this ipam alloc response
@@ -38,11 +39,11 @@ func (m *IpamAllocResponse) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateIP(formats); err != nil {
+	if err := m.validateIps(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateRoute(formats); err != nil {
+	if err := m.validateRoutes(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -71,40 +72,54 @@ func (m *IpamAllocResponse) validateDNS(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *IpamAllocResponse) validateIP(formats strfmt.Registry) error {
+func (m *IpamAllocResponse) validateIps(formats strfmt.Registry) error {
 
-	if err := validate.Required("ip", "body", m.IP); err != nil {
+	if err := validate.Required("ips", "body", m.Ips); err != nil {
 		return err
 	}
 
-	if m.IP != nil {
-		if err := m.IP.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ip")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ip")
-			}
-			return err
+	for i := 0; i < len(m.Ips); i++ {
+		if swag.IsZero(m.Ips[i]) { // not required
+			continue
 		}
+
+		if m.Ips[i] != nil {
+			if err := m.Ips[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ips" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ips" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
-func (m *IpamAllocResponse) validateRoute(formats strfmt.Registry) error {
-	if swag.IsZero(m.Route) { // not required
+func (m *IpamAllocResponse) validateRoutes(formats strfmt.Registry) error {
+	if swag.IsZero(m.Routes) { // not required
 		return nil
 	}
 
-	if m.Route != nil {
-		if err := m.Route.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("route")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("route")
-			}
-			return err
+	for i := 0; i < len(m.Routes); i++ {
+		if swag.IsZero(m.Routes[i]) { // not required
+			continue
 		}
+
+		if m.Routes[i] != nil {
+			if err := m.Routes[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("routes" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("routes" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -118,11 +133,11 @@ func (m *IpamAllocResponse) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateIP(ctx, formats); err != nil {
+	if err := m.contextValidateIps(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateRoute(ctx, formats); err != nil {
+	if err := m.contextValidateRoutes(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -148,33 +163,41 @@ func (m *IpamAllocResponse) contextValidateDNS(ctx context.Context, formats strf
 	return nil
 }
 
-func (m *IpamAllocResponse) contextValidateIP(ctx context.Context, formats strfmt.Registry) error {
+func (m *IpamAllocResponse) contextValidateIps(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.IP != nil {
-		if err := m.IP.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("ip")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("ip")
+	for i := 0; i < len(m.Ips); i++ {
+
+		if m.Ips[i] != nil {
+			if err := m.Ips[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ips" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ips" + "." + strconv.Itoa(i))
+				}
+				return err
 			}
-			return err
 		}
+
 	}
 
 	return nil
 }
 
-func (m *IpamAllocResponse) contextValidateRoute(ctx context.Context, formats strfmt.Registry) error {
+func (m *IpamAllocResponse) contextValidateRoutes(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.Route != nil {
-		if err := m.Route.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("route")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("route")
+	for i := 0; i < len(m.Routes); i++ {
+
+		if m.Routes[i] != nil {
+			if err := m.Routes[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("routes" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("routes" + "." + strconv.Itoa(i))
+				}
+				return err
 			}
-			return err
 		}
+
 	}
 
 	return nil

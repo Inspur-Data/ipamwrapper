@@ -6,8 +6,13 @@ package ipam
 import (
 	"context"
 	"github.com/Inspur-Data/k8-ipam/api/v1/models"
+	"github.com/Inspur-Data/k8-ipam/pkg/constant"
 	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/k8-ipam/pkg/manager/endpointmanager"
+	"github.com/Inspur-Data/k8-ipam/pkg/manager/ippoolmanager"
 	"github.com/Inspur-Data/k8-ipam/pkg/manager/podmanager"
+	appsv1 "k8s.io/api/apps/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type IPAM interface {
@@ -17,23 +22,61 @@ type IPAM interface {
 }
 
 type ipam struct {
-	config     IPAMConfig
-	podManager podmanager.PodManager
+	config          IPAMConfig
+	podManager      podmanager.PodManager
+	endpointManager endpointmanager.EndpointManager
+	ippoolManager   ippoolmanager.IPPoolManager
 }
 
 // NewIPAM init a new IPAM instance
-func NewIPAM(config IPAMConfig, podManager podmanager.PodManager) (IPAM, error) {
-	if podManager == nil {
+func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager, endpointMgr endpointmanager.EndpointManager, ippoolMgr ippoolmanager.IPPoolManager) (IPAM, error) {
+	if podMgr == nil {
 		return nil, logging.Errorf("podManager is nil")
 	}
+
+	if endpointMgr == nil {
+
+	}
 	return &ipam{
-		podManager: podManager,
-		config:     config,
+		podManager:      podMgr,
+		config:          config,
+		endpointManager: endpointMgr,
+		ippoolManager:   ippoolMgr,
 	}, nil
 }
 
 // Allocate will allocate an IP with the given param
 func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*models.IpamAllocResponse, error) {
+	pod, err := i.podManager.GetPodByName(ctx, *addArgs.PodNamespace, *addArgs.PodName, true)
+	if err != nil {
+		logging.Errorf("get pod failed:%v", err)
+		return nil, err
+	}
+
+	//get pod's top owner
+	owner, err := i.podManager.GetPodTopOwner(ctx, pod)
+	if err != nil {
+		logging.Errorf("get pod top owner failed:%v", err)
+		return nil, err
+	}
+
+	//get endpoint
+	ed, err := i.endpointManager.GetEndpointByName(ctx, *addArgs.PodNamespace, *addArgs.PodName, true)
+	if client.IgnoreNotFound(err) != nil {
+		logging.Errorf("get endpoint failed:%v", err)
+		return nil, err
+	}
+	if ed != nil {
+		logging.Debugf("get endpoint %s/%s", pod.Namespace, pod.Name)
+	} else {
+		logging.Errorf("find no endpoint")
+	}
+
+	if i.config.EnableStatefulSet && owner.APIVersion == appsv1.SchemeGroupVersion.String() && owner.Kind == constant.KindStatefulSet {
+		logging.Debugf("owner is statefulset,try to reuse the ip")
+	} else {
+		logging.Debugf("Try to retrieve the existing IP allocation")
+	}
 	return nil, nil
 }
 

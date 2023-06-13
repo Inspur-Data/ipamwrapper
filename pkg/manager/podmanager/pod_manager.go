@@ -22,7 +22,7 @@ import (
 type PodManager interface {
 	GetPodByName(ctx context.Context, namespace, podName string, cached bool) (*corev1.Pod, error)
 	ListPods(ctx context.Context, cached bool, opts ...client.ListOption) (*corev1.PodList, error)
-	GetPodTopController(ctx context.Context, pod *corev1.Pod) (types.PodTopController, error)
+	GetPodTopOwner(ctx context.Context, pod *corev1.Pod) (types.PodTopController, error)
 }
 
 type podManager struct {
@@ -72,11 +72,9 @@ func (pm *podManager) ListPods(ctx context.Context, cached bool, opts ...client.
 	return &podList, nil
 }
 
-// GetPodTopController will find the pod top owner controller with the given pod.
-// For example, once we create a deployment then it will create replicaset and the replicaset will create pods.
-// So, the pods' top owner is deployment. That's what the method implements.
+// GetPodTopOwner will find the pod top owner controller with the given pod.
 // Notice: if the application is a third party controller, the types.PodTopController property App would be nil!
-func (pm *podManager) GetPodTopController(ctx context.Context, pod *corev1.Pod) (types.PodTopController, error) {
+func (pm *podManager) GetPodTopOwner(ctx context.Context, pod *corev1.Pod) (types.PodTopController, error) {
 
 	var ownerErr = fmt.Errorf("failed to get pod '%s/%s' owner", pod.Namespace, pod.Name)
 

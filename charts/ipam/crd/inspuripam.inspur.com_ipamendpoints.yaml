@@ -1,0 +1,86 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: ipamendpoints.inspuripam.inspur.com
+spec:
+  group: inspuripam.inspur.com
+  names:
+    kind: IPAMEndpoint
+    listKind: IPAMEndpointList
+    plural: ipamendpoints
+    singular: ipamendpoint
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: IPAMEndpoint is the Schema for the ipamendpoints API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: IPAMEndpointSpec defines the desired state of IPAMEndpoint
+            type: object
+          status:
+            description: IPAMEndpointStatus defines the observed state of IPAMEndpoint
+            properties:
+              ips:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                items:
+                  properties:
+                    cleanGateway:
+                      type: boolean
+                    interface:
+                      type: string
+                    ipv4:
+                      type: string
+                    ipv4Gateway:
+                      type: string
+                    ipv4Pool:
+                      type: string
+                    ipv6:
+                      type: string
+                    ipv6Gateway:
+                      type: string
+                    ipv6Pool:
+                      type: string
+                    routes:
+                      items:
+                        properties:
+                          dst:
+                            type: string
+                          gw:
+                            type: string
+                        required:
+                        - dst
+                        - gw
+                        type: object
+                      type: array
+                  required:
+                  - interface
+                  type: object
+                type: array
+            required:
+            - ips
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

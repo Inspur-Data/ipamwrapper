@@ -69,6 +69,15 @@ type Route struct {
 	Gw string `json:"gw"`
 }
 
+// PoolIPAllocations is a map of IP allocation details indexed by IP address.
+type PoolIPAllocations map[string]PoolIPAllocation
+
+type PoolIPAllocation struct {
+	NIC            string `json:"interface"`
+	NamespacedName string `json:"pod"`
+	PodUID         string `json:"podUid"`
+}
+
 // IPPoolStatus defines the observed state of IPPool
 type IPPoolStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster

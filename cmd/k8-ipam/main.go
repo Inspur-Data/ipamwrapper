@@ -70,6 +70,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 		NetNamespace: &args.Netns,
 		PodName:      (*string)(&podArgs.K8S_POD_NAME),
 		PodNamespace: (*string)(&podArgs.K8S_POD_NAMESPACE),
+		Ipam:         ipamStr,
 	})
 
 	ipamResponse, err := unixAgentAPI.K8IpamAgent.PostIpam(param)
@@ -142,35 +143,36 @@ func convertRes(cniVersion string, response *k8_ipam_agent.PostIpamOK, interface
 	}
 
 	//add ip to the result
-	ip := response.Payload.IP
-	if ip != nil {
-		if *ip.Nic == interfaceName {
-			address, err := ipTools.ParseIP(*ip.Version, *ip.Address, true)
-			if err != nil {
-				return nil, logging.Errorf("ParseIP failed %v", err)
+	for _, ip := range response.Payload.Ips {
+		if ip != nil {
+			if *ip.Nic == interfaceName {
+				address, err := ipTools.ParseIP(*ip.Version, *ip.Address, true)
+				if err != nil {
+					return nil, logging.Errorf("ParseIP failed %v", err)
+				}
+				result.IPs = append(result.IPs, &cniTypesV1.IPConfig{
+					Address: *address,
+					Gateway: net.ParseIP(ip.Gateway),
+				})
 			}
-			result.IPs = append(result.IPs, &cniTypesV1.IPConfig{
-				Address: *address,
-				Gateway: net.ParseIP(ip.Gateway),
-			})
 		}
 	}
 
 	//add route to the result
-	route := response.Payload.Route
-	if route != nil {
-		if *route.IfName == interfaceName {
-			_, dst, err := net.ParseCIDR(*route.Dst)
-			if err != nil {
-				return nil, logging.Errorf("Parse CIDR failed %v", err)
+	for _, route := range response.Payload.Routes {
+		if route != nil {
+			if *route.IfName == interfaceName {
+				_, dst, err := net.ParseCIDR(*route.Dst)
+				if err != nil {
+					return nil, logging.Errorf("Parse CIDR failed %v", err)
+				}
+				result.Routes = append(result.Routes, &types.Route{
+					Dst: *dst,
+					GW:  net.ParseIP(*route.Gw),
+				})
 			}
-			result.Routes = append(result.Routes, &types.Route{
-				Dst: *dst,
-				GW:  net.ParseIP(*route.Gw),
-			})
 		}
 	}
-
 	//add dns to the result
 	dns := response.Payload.DNS
 	if dns != nil {
