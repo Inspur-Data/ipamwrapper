@@ -6,8 +6,8 @@ package client
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"github.com/Inspur-Data/k8-ipam/api/v1/client/health_check"
-	"github.com/Inspur-Data/k8-ipam/api/v1/client/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/client/health_check"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/client/k8_ipam_agent"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"

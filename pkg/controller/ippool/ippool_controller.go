@@ -18,13 +18,13 @@ package ippoolcontroller
 
 import (
 	"context"
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
-	ipamip "github.com/Inspur-Data/k8-ipam/pkg/ip"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	inspuripamv1 "github.com/Inspur-Data/k8-ipam/pkg/k8s/api/v1"
+	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"

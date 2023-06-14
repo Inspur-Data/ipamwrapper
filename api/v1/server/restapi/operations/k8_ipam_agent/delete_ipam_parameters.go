@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 
 // NewDeleteIpamParams creates a new DeleteIpamParams object

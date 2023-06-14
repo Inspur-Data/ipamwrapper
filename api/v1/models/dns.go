@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// DNS k8-ipam DNS
+// DNS ipamwrapper DNS
 //
 // swagger:model DNS
 type DNS struct {

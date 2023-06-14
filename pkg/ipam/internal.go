@@ -2,12 +2,12 @@ package ipam
 
 import (
 	"context"
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	inspuripamv1 "github.com/Inspur-Data/k8-ipam/pkg/k8s/api/v1"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
-	"github.com/Inspur-Data/k8-ipam/pkg/manager/endpointmanager"
-	"github.com/Inspur-Data/k8-ipam/pkg/types"
-	"github.com/Inspur-Data/k8-ipam/pkg/utils/convert"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/types"
+	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	corev1 "k8s.io/api/core/v1"
 	"sync"
 )

@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	inspuripamv1 "github.com/Inspur-Data/k8-ipam/pkg/k8s/api/v1"
+	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	//+kubebuilder:scaffold:imports
 )
 

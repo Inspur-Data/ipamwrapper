@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 
 // NewPostIpamParams creates a new PostIpamParams object,

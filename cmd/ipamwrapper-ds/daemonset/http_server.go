@@ -5,9 +5,9 @@ package daemonset
 import (
 	"strconv"
 
-	k8IPAMClient "github.com/Inspur-Data/k8-ipam/api/v1/client"
-	k8IPAMRestapi "github.com/Inspur-Data/k8-ipam/api/v1/server/restapi"
-	k8IPAMOperation "github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations"
+	k8IPAMClient "github.com/Inspur-Data/ipamwrapper/api/v1/client"
+	k8IPAMRestapi "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi"
+	k8IPAMOperation "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
 	"github.com/go-openapi/loads"
 )
 

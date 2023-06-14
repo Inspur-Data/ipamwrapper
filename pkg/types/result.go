@@ -3,7 +3,7 @@
 
 package types
 
-import "github.com/Inspur-Data/k8-ipam/api/v1/models"
+import "github.com/Inspur-Data/ipamwrapper/api/v1/models"
 
 type IPVersion = int64
 

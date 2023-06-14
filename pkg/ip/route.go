@@ -4,9 +4,9 @@
 package ip
 
 import (
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	"github.com/asaskevich/govalidator"
 )
 

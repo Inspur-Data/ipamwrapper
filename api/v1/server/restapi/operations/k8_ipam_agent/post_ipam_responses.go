@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 // PostIpamOKCode is the HTTP code returned for type PostIpamOK
 const PostIpamOKCode int = 200

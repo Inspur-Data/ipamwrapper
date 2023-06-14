@@ -4,9 +4,9 @@
 package daemonset
 
 import (
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	k8IPAMServerAgent "github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations/k8_ipam_agent"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	k8IPAMServerAgent "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 )

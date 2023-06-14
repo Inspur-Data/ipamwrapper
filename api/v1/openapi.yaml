@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
-  description: k8-ipam Agent
-  title: k8-ipam Agent API
+  description: ipamwrapper Agent
+  title: ipamwrapper Agent API
   version: v1
 x-schemes:
   - unix
@@ -13,7 +13,7 @@ consumes:
 paths:
   "/healthy":
     get:
-      summary: Get health of k8-ipam agent
+      summary: Get health of ipamwrapper agent
       description: |
         Check the agent health to make sure whether it's ready
         for CNI plugin usage
@@ -26,11 +26,11 @@ paths:
           description: Failed
   "/ipam":
     post:
-      summary: Alloc ip from k8-ipam
+      summary: Alloc ip from ipamwrapper
       description: |
-        Send a request to k8-ipam to alloc an ip
+        Send a request to ipamwrapper to alloc an ip
       tags:
-        - k8-ipam-agent
+        - ipamwrapper-agent
       parameters:
         - name: ipam-alloc-args
           in: body
@@ -48,11 +48,11 @@ paths:
           schema:
             $ref: "#/definitions/Error"
     delete:
-      summary: Delete ip from k8-ipam
+      summary: Delete ip from ipamwrapper
       description: |
-        Send a request to k8-ipam to delete an ip
+        Send a request to ipamwrapper to delete an ip
       tags:
-        - k8-ipam-agent
+        - ipamwrapper-agent
       parameters:
         - name: ipam-del-args
           in: body
@@ -130,7 +130,7 @@ definitions:
       - podNamespace
       - podName
   DNS:
-    description: k8-ipam DNS
+    description: ipamwrapper DNS
     type: object
     properties:
       domain:
@@ -148,7 +148,7 @@ definitions:
         items:
           type: string
   Route:
-    description: k8-ipam Route
+    description: ipamwrapper Route
     type: object
     properties:
       ifName:

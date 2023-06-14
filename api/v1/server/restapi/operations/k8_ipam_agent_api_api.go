@@ -19,8 +19,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations/health_check"
-	"github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
 )
 
 // NewK8IpamAgentAPIAPI creates a new K8IpamAgentAPI instance
@@ -57,7 +57,7 @@ func NewK8IpamAgentAPIAPI(spec *loads.Document) *K8IpamAgentAPIAPI {
 	}
 }
 
-/*K8IpamAgentAPIAPI k8-ipam Agent */
+/*K8IpamAgentAPIAPI ipamwrapper Agent */
 type K8IpamAgentAPIAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Route k8-ipam Route
+// Route ipamwrapper Route
 //
 // swagger:model Route
 type Route struct {

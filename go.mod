@@ -1,4 +1,4 @@
-module github.com/Inspur-Data/k8-ipam
+module github.com/Inspur-Data/ipamwrapper
 
 go 1.19
 

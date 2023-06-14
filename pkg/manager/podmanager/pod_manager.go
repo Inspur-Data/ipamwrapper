@@ -6,7 +6,7 @@ package podmanager
 import (
 	"context"
 	"fmt"
-	"github.com/Inspur-Data/k8-ipam/pkg/types"
+	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -16,7 +16,7 @@ import (
 	"k8s.io/utils/strings/slices"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 )
 
 type PodManager interface {

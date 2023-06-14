@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
-	logging "github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	logging "github.com/Inspur-Data/ipamwrapper/pkg/logging"
 )
 
 // ParseConfig the args in []byte to CNIConf

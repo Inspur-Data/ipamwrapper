@@ -6,8 +6,8 @@ package daemonset
 import (
 	"github.com/jessevdk/go-flags"
 
-	k8IPAMRestapi "github.com/Inspur-Data/k8-ipam/api/v1/server/restapi"
-	k8IPAMOperation "github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations"
+	k8IPAMRestapi "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi"
+	k8IPAMOperation "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
 	"github.com/go-openapi/loads"
 )
 

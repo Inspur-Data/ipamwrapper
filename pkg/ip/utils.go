@@ -7,7 +7,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 )
 
 func AssembleTotalIPs(ipVersion constant.IPVersion, ipRanges, excludedIPRanges []string) ([]net.IP, error) {

@@ -40,7 +40,7 @@ type ClientService interface {
 /*
 DeleteIpam deletes ip from k8 ipam
 
-Send a request to k8-ipam to delete an ip
+Send a request to ipamwrapper to delete an ip
 */
 func (a *Client) DeleteIpam(params *DeleteIpamParams, opts ...ClientOption) (*DeleteIpamOK, error) {
 	// TODO: Validate the params before sending
@@ -80,7 +80,7 @@ func (a *Client) DeleteIpam(params *DeleteIpamParams, opts ...ClientOption) (*De
 /*
 PostIpam allocs ip from k8 ipam
 
-Send a request to k8-ipam to alloc an ip
+Send a request to ipamwrapper to alloc an ip
 */
 func (a *Client) PostIpam(params *PostIpamParams, opts ...ClientOption) (*PostIpamOK, error) {
 	// TODO: Validate the params before sending

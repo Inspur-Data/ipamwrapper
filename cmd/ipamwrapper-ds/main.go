@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Inspur-Data/k8-ipam/cmd/k8-ipam-ds/daemonset"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/cmd/ipamwrapper-ds/daemonset"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"net/http"
 )
 

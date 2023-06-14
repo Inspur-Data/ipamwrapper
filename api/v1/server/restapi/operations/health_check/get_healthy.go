@@ -32,7 +32,7 @@ func NewGetHealthy(ctx *middleware.Context, handler GetHealthyHandler) *GetHealt
 /*
 	GetHealthy swagger:route GET /healthy health-check getHealthy
 
-# Get health of k8-ipam agent
+# Get health of ipamwrapper agent
 
 Check the agent health to make sure whether it's ready
 for CNI plugin usage

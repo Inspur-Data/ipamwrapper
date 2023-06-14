@@ -4,7 +4,7 @@
 package daemonset
 
 import (
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"gopkg.in/yaml.v3"
 	"os"
 	"strings"

@@ -1,6 +1,6 @@
 ##ignore this file ##
 .idea
 go.sum
-/cmd/k8-ipam/*.exe
-/cmd/k8-ipam/test.go
-/cmd/k8-ipam-ds/*.exe
+/cmd/ipamwrapper/*.exe
+/cmd/ipamwrapper/test.go
+/cmd/ipamwrapper-ds/*.exe

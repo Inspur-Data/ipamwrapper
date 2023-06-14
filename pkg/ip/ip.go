@@ -5,14 +5,14 @@ package ip
 
 import (
 	"bytes"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"math/big"
 	"net"
 	"sort"
 
 	"github.com/asaskevich/govalidator"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 )
 
 // IsIPVersion reports whether version is a valid IP version (4 or 6).

@@ -6,12 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Inspur-Data/k8-ipam/api/v1/client/k8_ipam_agent"
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	"github.com/Inspur-Data/k8-ipam/cmd/k8-ipam-ds/daemonset"
-	"github.com/Inspur-Data/k8-ipam/pkg/config"
-	ipTools "github.com/Inspur-Data/k8-ipam/pkg/ip"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/client/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/cmd/ipamwrapper-ds/daemonset"
+	"github.com/Inspur-Data/ipamwrapper/pkg/config"
+	ipTools "github.com/Inspur-Data/ipamwrapper/pkg/ip"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types"
 	cniTypesV1 "github.com/containernetworking/cni/pkg/types/100"
@@ -21,13 +21,13 @@ import (
 	"time"
 )
 
-// version means k8-ipam released version.
+// version means ipamwrapper released version.
 var version = "0.1.0"
 
 func main() {
 	logging.Debugf("main function will start.....")
 	//test()
-	skel.PluginMain(cmdAdd, cmdCheck, cmdDel, cniSpecVersion.All, fmt.Sprintf("k8-ipam version %s", version))
+	skel.PluginMain(cmdAdd, cmdCheck, cmdDel, cniSpecVersion.All, fmt.Sprintf("ipamwrapper version %s", version))
 }
 
 func cmdCheck(args *skel.CmdArgs) error {

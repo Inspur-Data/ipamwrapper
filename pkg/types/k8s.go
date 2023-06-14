@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apitypes "k8s.io/apimachinery/pkg/types"
 
-	stringutil "github.com/Inspur-Data/k8-ipam/pkg/utils/string"
+	stringutil "github.com/Inspur-Data/ipamwrapper/pkg/utils/string"
 )
 
 type PodStatus string

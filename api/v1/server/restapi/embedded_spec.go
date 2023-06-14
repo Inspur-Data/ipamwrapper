@@ -26,8 +26,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "k8-ipam Agent",
-    "title": "k8-ipam Agent API",
+    "description": "ipamwrapper Agent",
+    "title": "ipamwrapper Agent API",
     "version": "v1"
   },
   "basePath": "/v1",
@@ -38,7 +38,7 @@ func init() {
         "tags": [
           "health-check"
         ],
-        "summary": "Get health of k8-ipam agent",
+        "summary": "Get health of ipamwrapper agent",
         "responses": {
           "200": {
             "description": "Success"
@@ -51,11 +51,11 @@ func init() {
     },
     "/ipam": {
       "post": {
-        "description": "Send a request to k8-ipam to alloc an ip\n",
+        "description": "Send a request to ipamwrapper to alloc an ip\n",
         "tags": [
-          "k8-ipam-agent"
+          "ipamwrapper-agent"
         ],
-        "summary": "Alloc ip from k8-ipam",
+        "summary": "Alloc ip from ipamwrapper",
         "parameters": [
           {
             "name": "ipam-alloc-args",
@@ -83,11 +83,11 @@ func init() {
         }
       },
       "delete": {
-        "description": "Send a request to k8-ipam to delete an ip\n",
+        "description": "Send a request to ipamwrapper to delete an ip\n",
         "tags": [
-          "k8-ipam-agent"
+          "ipamwrapper-agent"
         ],
-        "summary": "Delete ip from k8-ipam",
+        "summary": "Delete ip from ipamwrapper",
         "parameters": [
           {
             "name": "ipam-del-args",
@@ -115,7 +115,7 @@ func init() {
   },
   "definitions": {
     "DNS": {
-      "description": "k8-ipam DNS",
+      "description": "ipamwrapper DNS",
       "type": "object",
       "properties": {
         "domain": {
@@ -262,7 +262,7 @@ func init() {
       }
     },
     "Route": {
-      "description": "k8-ipam Route",
+      "description": "ipamwrapper Route",
       "type": "object",
       "required": [
         "ifName",
@@ -295,8 +295,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "k8-ipam Agent",
-    "title": "k8-ipam Agent API",
+    "description": "ipamwrapper Agent",
+    "title": "ipamwrapper Agent API",
     "version": "v1"
   },
   "basePath": "/v1",
@@ -307,7 +307,7 @@ func init() {
         "tags": [
           "health-check"
         ],
-        "summary": "Get health of k8-ipam agent",
+        "summary": "Get health of ipamwrapper agent",
         "responses": {
           "200": {
             "description": "Success"
@@ -320,11 +320,11 @@ func init() {
     },
     "/ipam": {
       "post": {
-        "description": "Send a request to k8-ipam to alloc an ip\n",
+        "description": "Send a request to ipamwrapper to alloc an ip\n",
         "tags": [
-          "k8-ipam-agent"
+          "ipamwrapper-agent"
         ],
-        "summary": "Alloc ip from k8-ipam",
+        "summary": "Alloc ip from ipamwrapper",
         "parameters": [
           {
             "name": "ipam-alloc-args",
@@ -352,11 +352,11 @@ func init() {
         }
       },
       "delete": {
-        "description": "Send a request to k8-ipam to delete an ip\n",
+        "description": "Send a request to ipamwrapper to delete an ip\n",
         "tags": [
-          "k8-ipam-agent"
+          "ipamwrapper-agent"
         ],
-        "summary": "Delete ip from k8-ipam",
+        "summary": "Delete ip from ipamwrapper",
         "parameters": [
           {
             "name": "ipam-del-args",
@@ -384,7 +384,7 @@ func init() {
   },
   "definitions": {
     "DNS": {
-      "description": "k8-ipam DNS",
+      "description": "ipamwrapper DNS",
       "type": "object",
       "properties": {
         "domain": {
@@ -531,7 +531,7 @@ func init() {
       }
     },
     "Route": {
-      "description": "k8-ipam Route",
+      "description": "ipamwrapper Route",
       "type": "object",
       "required": [
         "ifName",

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 // DeleteIpamOKCode is the HTTP code returned for type DeleteIpamOK
 const DeleteIpamOKCode int = 200

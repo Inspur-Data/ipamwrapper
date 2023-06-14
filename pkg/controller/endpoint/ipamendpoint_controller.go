@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	inspuripamv1 "github.com/Inspur-Data/k8-ipam/pkg/k8s/api/v1"
+	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 )
 
 // IPAMEndpointReconciler reconciles a IPAMEndpoint object

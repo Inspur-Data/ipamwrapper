@@ -30,11 +30,11 @@ func NewPostIpam(ctx *middleware.Context, handler PostIpamHandler) *PostIpam {
 }
 
 /*
-	PostIpam swagger:route POST /ipam k8-ipam-agent postIpam
+	PostIpam swagger:route POST /ipam ipamwrapper-agent postIpam
 
-# Alloc ip from k8-ipam
+# Alloc ip from ipamwrapper
 
-Send a request to k8-ipam to alloc an ip
+Send a request to ipamwrapper to alloc an ip
 */
 type PostIpam struct {
 	Context *middleware.Context

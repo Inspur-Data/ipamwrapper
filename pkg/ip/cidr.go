@@ -4,10 +4,10 @@
 package ip
 
 import (
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"net"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 )
 
 // ParseCIDR parses subnet string as a CIDR notation IP address of the

@@ -8,10 +8,10 @@ import (
 	"net"
 	"strings"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
-	inspuripamv1 "github.com/Inspur-Data/k8-ipam/pkg/k8s/api/v1"
-	"github.com/Inspur-Data/k8-ipam/pkg/types"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
+	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"github.com/asaskevich/govalidator"
 )
 

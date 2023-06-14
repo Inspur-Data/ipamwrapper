@@ -10,9 +10,9 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations"
-	"github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations/health_check"
-	"github.com/Inspur-Data/k8-ipam/api/v1/server/restapi/operations/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
 )
 
 //go:generate swagger generate server --target ../../server --name K8IpamAgentAPI --spec ../../../../home/swagger/openapi.yaml --principal interface{}

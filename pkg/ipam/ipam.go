@@ -5,12 +5,12 @@ package ipam
 
 import (
 	"context"
-	"github.com/Inspur-Data/k8-ipam/api/v1/models"
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
-	"github.com/Inspur-Data/k8-ipam/pkg/manager/endpointmanager"
-	"github.com/Inspur-Data/k8-ipam/pkg/manager/ippoolmanager"
-	"github.com/Inspur-Data/k8-ipam/pkg/manager/podmanager"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

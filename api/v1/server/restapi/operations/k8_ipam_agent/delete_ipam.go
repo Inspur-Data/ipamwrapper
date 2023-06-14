@@ -30,11 +30,11 @@ func NewDeleteIpam(ctx *middleware.Context, handler DeleteIpamHandler) *DeleteIp
 }
 
 /*
-	DeleteIpam swagger:route DELETE /ipam k8-ipam-agent deleteIpam
+	DeleteIpam swagger:route DELETE /ipam ipamwrapper-agent deleteIpam
 
-# Delete ip from k8-ipam
+# Delete ip from ipamwrapper
 
-Send a request to k8-ipam to delete an ip
+Send a request to ipamwrapper to delete an ip
 */
 type DeleteIpam struct {
 	Context *middleware.Context

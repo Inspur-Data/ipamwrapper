@@ -6,14 +6,14 @@ package ip
 import (
 	"bytes"
 	"fmt"
-	"github.com/Inspur-Data/k8-ipam/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"net"
 	"sort"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
 
-	"github.com/Inspur-Data/k8-ipam/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 )
 
 // MergeIPRanges merges dispersed IP ranges.

@@ -16,7 +16,7 @@ on:
     - '**.md'
 
 jobs:
-  build-and-push-imag-k8-ipam:
+  build-and-push-imag-ipamwrapper:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out the repo
@@ -25,16 +25,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build  k8-ipam bin
+      - name: Build  ipamwrapper bin
         run: |
           go mod tidy
           git diff --exit-code
-          make build-k8-ipam
-      - name: Build  k8-ipam
+          make build-ipamwrapper
+      - name: Build  ipamwrapper
         run: |
             go mod tidy
             git diff --exit-code
-            make build-k8-ipam
+            make build-ipamwrapper
             
       - name: Login to Docker
         run: |
@@ -44,7 +44,7 @@ jobs:
         run: |
             cat VERSION
             TAG=$(cat VERSION)
-            docker push inspurwyd/k8-ipam:$TAG
+            docker push inspurwyd/ipamwrapper:$TAG
 
     
 
