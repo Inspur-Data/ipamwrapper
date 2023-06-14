@@ -36,7 +36,7 @@ type ClientService interface {
 }
 
 /*
-	GetHealthy gets health of k8 ipam agent
+	GetHealthy gets health of ipamwrapper agent
 
 	Check the agent health to make sure whether it's ready
 

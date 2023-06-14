@@ -5,23 +5,33 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
-
-	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/runtime/middleware"
-
-	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
-	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
-	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
+	"server/restapi/operations"
+	"server/restapi/operations/health_check"
+	"server/restapi/operations/ipamwrapper_agent"
 )
 
-//go:generate swagger generate server --target ../../server --name K8IpamAgentAPI --spec ../../../../home/swagger/openapi.yaml --principal interface{}
+package restapi
 
-func configureFlags(api *operations.K8IpamAgentAPIAPI) {
+import (
+"crypto/tls"
+"net/http"
+
+"github.com/go-openapi/errors"
+"github.com/go-openapi/runtime"
+"github.com/go-openapi/runtime/middleware"
+
+"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
+"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
+"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
+)
+
+//go:generate swagger generate server --target ../../server --name IpamwrapperAgentAPI --spec ../../openapi.yaml --principal interface{}
+
+func configureFlags(api *operations.IpamwrapperAgentAPIAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *operations.K8IpamAgentAPIAPI) http.Handler {
+func configureAPI(api *operations.IpamwrapperAgentAPIAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -39,9 +49,9 @@ func configureAPI(api *operations.K8IpamAgentAPIAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.K8IpamAgentDeleteIpamHandler == nil {
-		api.K8IpamAgentDeleteIpamHandler = k8_ipam_agent.DeleteIpamHandlerFunc(func(params k8_ipam_agent.DeleteIpamParams) middleware.Responder {
-			return middleware.NotImplemented("operation k8_ipam_agent.DeleteIpam has not yet been implemented")
+	if api.IpamwrapperAgentDeleteIpamHandler == nil {
+		api.IpamwrapperAgentDeleteIpamHandler = ipamwrapper_agent.DeleteIpamHandlerFunc(func(params ipamwrapper_agent.DeleteIpamParams) middleware.Responder {
+			return middleware.NotImplemented("operation ipamwrapper_agent.DeleteIpam has not yet been implemented")
 		})
 	}
 	if api.HealthCheckGetHealthyHandler == nil {
@@ -49,9 +59,9 @@ func configureAPI(api *operations.K8IpamAgentAPIAPI) http.Handler {
 			return middleware.NotImplemented("operation health_check.GetHealthy has not yet been implemented")
 		})
 	}
-	if api.K8IpamAgentPostIpamHandler == nil {
-		api.K8IpamAgentPostIpamHandler = k8_ipam_agent.PostIpamHandlerFunc(func(params k8_ipam_agent.PostIpamParams) middleware.Responder {
-			return middleware.NotImplemented("operation k8_ipam_agent.PostIpam has not yet been implemented")
+	if api.IpamwrapperAgentPostIpamHandler == nil {
+		api.IpamwrapperAgentPostIpamHandler = ipamwrapper_agent.PostIpamHandlerFunc(func(params ipamwrapper_agent.PostIpamParams) middleware.Responder {
+			return middleware.NotImplemented("operation ipamwrapper_agent.PostIpam has not yet been implemented")
 		})
 	}
 

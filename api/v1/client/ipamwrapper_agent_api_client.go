@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// Default k8 ipam agent API HTTP client.
+// Default ipamwrapper agent API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http"}
 
-// NewHTTPClient creates a new k8 ipam agent API HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *K8IpamAgentAPI {
+// NewHTTPClient creates a new ipamwrapper agent API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *IpamwrapperAgentAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new k8 ipam agent API HTTP client,
+// NewHTTPClientWithConfig creates a new ipamwrapper agent API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *K8IpamAgentAPI {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *IpamwrapperAgentAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,17 +46,17 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *K8I
 	return New(transport, formats)
 }
 
-// New creates a new k8 ipam agent API client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *K8IpamAgentAPI {
+// New creates a new ipamwrapper agent API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *IpamwrapperAgentAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(K8IpamAgentAPI)
+	cli := new(IpamwrapperAgentAPI)
 	cli.Transport = transport
 	cli.HealthCheck = health_check.New(transport, formats)
-	cli.K8IpamAgent = k8_ipam_agent.New(transport, formats)
+	cli.IpamwrapperAgent = ipamwrapper_agent.New(transport, formats)
 	return cli
 }
 
@@ -99,18 +99,18 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// K8IpamAgentAPI is a client for k8 ipam agent API
-type K8IpamAgentAPI struct {
+// IpamwrapperAgentAPI is a client for ipamwrapper agent API
+type IpamwrapperAgentAPI struct {
 	HealthCheck health_check.ClientService
 
-	K8IpamAgent k8_ipam_agent.ClientService
+	IpamwrapperAgent ipamwrapper_agent.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *K8IpamAgentAPI) SetTransport(transport runtime.ClientTransport) {
+func (c *IpamwrapperAgentAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.HealthCheck.SetTransport(transport)
-	c.K8IpamAgent.SetTransport(transport)
+	c.IpamwrapperAgent.SetTransport(transport)
 }

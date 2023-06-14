@@ -8,6 +8,7 @@ package operations
 import (
 	"fmt"
 	"net/http"
+	"server/restapi/operations/ipamwrapper_agent"
 	"strings"
 
 	"github.com/go-openapi/errors"
@@ -23,9 +24,9 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
 )
 
-// NewK8IpamAgentAPIAPI creates a new K8IpamAgentAPI instance
-func NewK8IpamAgentAPIAPI(spec *loads.Document) *K8IpamAgentAPIAPI {
-	return &K8IpamAgentAPIAPI{
+// NewIpamwrapperAgentAPIAPI creates a new IpamwrapperAgentAPI instance
+func NewIpamwrapperAgentAPIAPI(spec *loads.Document) *IpamwrapperAgentAPIAPI {
+	return &IpamwrapperAgentAPIAPI{
 		handlers:            make(map[string]map[string]http.Handler),
 		formats:             strfmt.Default,
 		defaultConsumes:     "application/json",
@@ -45,20 +46,20 @@ func NewK8IpamAgentAPIAPI(spec *loads.Document) *K8IpamAgentAPIAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		K8IpamAgentDeleteIpamHandler: k8_ipam_agent.DeleteIpamHandlerFunc(func(params k8_ipam_agent.DeleteIpamParams) middleware.Responder {
-			return middleware.NotImplemented("operation k8_ipam_agent.DeleteIpam has not yet been implemented")
+		IpamwrapperAgentDeleteIpamHandler: ipamwrapper_agent.DeleteIpamHandlerFunc(func(params ipamwrapper_agent.DeleteIpamParams) middleware.Responder {
+			return middleware.NotImplemented("operation ipamwrapper_agent.DeleteIpam has not yet been implemented")
 		}),
 		HealthCheckGetHealthyHandler: health_check.GetHealthyHandlerFunc(func(params health_check.GetHealthyParams) middleware.Responder {
 			return middleware.NotImplemented("operation health_check.GetHealthy has not yet been implemented")
 		}),
-		K8IpamAgentPostIpamHandler: k8_ipam_agent.PostIpamHandlerFunc(func(params k8_ipam_agent.PostIpamParams) middleware.Responder {
-			return middleware.NotImplemented("operation k8_ipam_agent.PostIpam has not yet been implemented")
+		IpamwrapperAgentPostIpamHandler: ipamwrapper_agent.PostIpamHandlerFunc(func(params ipamwrapper_agent.PostIpamParams) middleware.Responder {
+			return middleware.NotImplemented("operation ipamwrapper_agent.PostIpam has not yet been implemented")
 		}),
 	}
 }
 
-/*K8IpamAgentAPIAPI ipamwrapper Agent */
-type K8IpamAgentAPIAPI struct {
+/*IpamwrapperAgentAPIAPI ipamwrapper Agent */
+type IpamwrapperAgentAPIAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
 	handlers        map[string]map[string]http.Handler
@@ -90,12 +91,12 @@ type K8IpamAgentAPIAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// K8IpamAgentDeleteIpamHandler sets the operation handler for the delete ipam operation
-	K8IpamAgentDeleteIpamHandler k8_ipam_agent.DeleteIpamHandler
+	// IpamwrapperAgentDeleteIpamHandler sets the operation handler for the delete ipam operation
+	IpamwrapperAgentDeleteIpamHandler ipamwrapper_agent.DeleteIpamHandler
 	// HealthCheckGetHealthyHandler sets the operation handler for the get healthy operation
 	HealthCheckGetHealthyHandler health_check.GetHealthyHandler
-	// K8IpamAgentPostIpamHandler sets the operation handler for the post ipam operation
-	K8IpamAgentPostIpamHandler k8_ipam_agent.PostIpamHandler
+	// IpamwrapperAgentPostIpamHandler sets the operation handler for the post ipam operation
+	IpamwrapperAgentPostIpamHandler ipamwrapper_agent.PostIpamHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -117,52 +118,52 @@ type K8IpamAgentAPIAPI struct {
 }
 
 // UseRedoc for documentation at /docs
-func (o *K8IpamAgentAPIAPI) UseRedoc() {
+func (o *IpamwrapperAgentAPIAPI) UseRedoc() {
 	o.useSwaggerUI = false
 }
 
 // UseSwaggerUI for documentation at /docs
-func (o *K8IpamAgentAPIAPI) UseSwaggerUI() {
+func (o *IpamwrapperAgentAPIAPI) UseSwaggerUI() {
 	o.useSwaggerUI = true
 }
 
 // SetDefaultProduces sets the default produces media type
-func (o *K8IpamAgentAPIAPI) SetDefaultProduces(mediaType string) {
+func (o *IpamwrapperAgentAPIAPI) SetDefaultProduces(mediaType string) {
 	o.defaultProduces = mediaType
 }
 
 // SetDefaultConsumes returns the default consumes media type
-func (o *K8IpamAgentAPIAPI) SetDefaultConsumes(mediaType string) {
+func (o *IpamwrapperAgentAPIAPI) SetDefaultConsumes(mediaType string) {
 	o.defaultConsumes = mediaType
 }
 
 // SetSpec sets a spec that will be served for the clients.
-func (o *K8IpamAgentAPIAPI) SetSpec(spec *loads.Document) {
+func (o *IpamwrapperAgentAPIAPI) SetSpec(spec *loads.Document) {
 	o.spec = spec
 }
 
 // DefaultProduces returns the default produces media type
-func (o *K8IpamAgentAPIAPI) DefaultProduces() string {
+func (o *IpamwrapperAgentAPIAPI) DefaultProduces() string {
 	return o.defaultProduces
 }
 
 // DefaultConsumes returns the default consumes media type
-func (o *K8IpamAgentAPIAPI) DefaultConsumes() string {
+func (o *IpamwrapperAgentAPIAPI) DefaultConsumes() string {
 	return o.defaultConsumes
 }
 
 // Formats returns the registered string formats
-func (o *K8IpamAgentAPIAPI) Formats() strfmt.Registry {
+func (o *IpamwrapperAgentAPIAPI) Formats() strfmt.Registry {
 	return o.formats
 }
 
 // RegisterFormat registers a custom format validator
-func (o *K8IpamAgentAPIAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
+func (o *IpamwrapperAgentAPIAPI) RegisterFormat(name string, format strfmt.Format, validator strfmt.Validator) {
 	o.formats.Add(name, format, validator)
 }
 
-// Validate validates the registrations in the K8IpamAgentAPIAPI
-func (o *K8IpamAgentAPIAPI) Validate() error {
+// Validate validates the registrations in the IpamwrapperAgentAPIAPI
+func (o *IpamwrapperAgentAPIAPI) Validate() error {
 	var unregistered []string
 
 	if o.JSONConsumer == nil {
@@ -173,14 +174,14 @@ func (o *K8IpamAgentAPIAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.K8IpamAgentDeleteIpamHandler == nil {
-		unregistered = append(unregistered, "k8_ipam_agent.DeleteIpamHandler")
+	if o.IpamwrapperAgentDeleteIpamHandler == nil {
+		unregistered = append(unregistered, "ipamwrapper_agent.DeleteIpamHandler")
 	}
 	if o.HealthCheckGetHealthyHandler == nil {
 		unregistered = append(unregistered, "health_check.GetHealthyHandler")
 	}
-	if o.K8IpamAgentPostIpamHandler == nil {
-		unregistered = append(unregistered, "k8_ipam_agent.PostIpamHandler")
+	if o.IpamwrapperAgentPostIpamHandler == nil {
+		unregistered = append(unregistered, "ipamwrapper_agent.PostIpamHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -191,23 +192,23 @@ func (o *K8IpamAgentAPIAPI) Validate() error {
 }
 
 // ServeErrorFor gets a error handler for a given operation id
-func (o *K8IpamAgentAPIAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
+func (o *IpamwrapperAgentAPIAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, *http.Request, error) {
 	return o.ServeError
 }
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
-func (o *K8IpamAgentAPIAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
+func (o *IpamwrapperAgentAPIAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
 	return nil
 }
 
 // Authorizer returns the registered authorizer
-func (o *K8IpamAgentAPIAPI) Authorizer() runtime.Authorizer {
+func (o *IpamwrapperAgentAPIAPI) Authorizer() runtime.Authorizer {
 	return nil
 }
 
 // ConsumersFor gets the consumers for the specified media types.
 // MIME type parameters are ignored here.
-func (o *K8IpamAgentAPIAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
+func (o *IpamwrapperAgentAPIAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
 	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
@@ -224,7 +225,7 @@ func (o *K8IpamAgentAPIAPI) ConsumersFor(mediaTypes []string) map[string]runtime
 
 // ProducersFor gets the producers for the specified media types.
 // MIME type parameters are ignored here.
-func (o *K8IpamAgentAPIAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
+func (o *IpamwrapperAgentAPIAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
 	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
@@ -240,7 +241,7 @@ func (o *K8IpamAgentAPIAPI) ProducersFor(mediaTypes []string) map[string]runtime
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
-func (o *K8IpamAgentAPIAPI) HandlerFor(method, path string) (http.Handler, bool) {
+func (o *IpamwrapperAgentAPIAPI) HandlerFor(method, path string) (http.Handler, bool) {
 	if o.handlers == nil {
 		return nil, false
 	}
@@ -255,8 +256,8 @@ func (o *K8IpamAgentAPIAPI) HandlerFor(method, path string) (http.Handler, bool)
 	return h, ok
 }
 
-// Context returns the middleware context for the k8 ipam agent API API
-func (o *K8IpamAgentAPIAPI) Context() *middleware.Context {
+// Context returns the middleware context for the ipamwrapper agent API API
+func (o *IpamwrapperAgentAPIAPI) Context() *middleware.Context {
 	if o.context == nil {
 		o.context = middleware.NewRoutableContext(o.spec, o, nil)
 	}
@@ -264,7 +265,7 @@ func (o *K8IpamAgentAPIAPI) Context() *middleware.Context {
 	return o.context
 }
 
-func (o *K8IpamAgentAPIAPI) initHandlerCache() {
+func (o *IpamwrapperAgentAPIAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
@@ -273,7 +274,7 @@ func (o *K8IpamAgentAPIAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/ipam"] = k8_ipam_agent.NewDeleteIpam(o.context, o.K8IpamAgentDeleteIpamHandler)
+	o.handlers["DELETE"]["/ipam"] = ipamwrapper_agent.NewDeleteIpam(o.context, o.IpamwrapperAgentDeleteIpamHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -281,12 +282,12 @@ func (o *K8IpamAgentAPIAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/ipam"] = k8_ipam_agent.NewPostIpam(o.context, o.K8IpamAgentPostIpamHandler)
+	o.handlers["POST"]["/ipam"] = ipamwrapper_agent.NewPostIpam(o.context, o.IpamwrapperAgentPostIpamHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
 // can be used directly in http.ListenAndServe(":8000", api.Serve(nil))
-func (o *K8IpamAgentAPIAPI) Serve(builder middleware.Builder) http.Handler {
+func (o *IpamwrapperAgentAPIAPI) Serve(builder middleware.Builder) http.Handler {
 	o.Init()
 
 	if o.Middleware != nil {
@@ -299,24 +300,24 @@ func (o *K8IpamAgentAPIAPI) Serve(builder middleware.Builder) http.Handler {
 }
 
 // Init allows you to just initialize the handler cache, you can then recompose the middleware as you see fit
-func (o *K8IpamAgentAPIAPI) Init() {
+func (o *IpamwrapperAgentAPIAPI) Init() {
 	if len(o.handlers) == 0 {
 		o.initHandlerCache()
 	}
 }
 
 // RegisterConsumer allows you to add (or override) a consumer for a media type.
-func (o *K8IpamAgentAPIAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer) {
+func (o *IpamwrapperAgentAPIAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer) {
 	o.customConsumers[mediaType] = consumer
 }
 
 // RegisterProducer allows you to add (or override) a producer for a media type.
-func (o *K8IpamAgentAPIAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
+func (o *IpamwrapperAgentAPIAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
 }
 
 // AddMiddlewareFor adds a http middleware to existing handler
-func (o *K8IpamAgentAPIAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+func (o *IpamwrapperAgentAPIAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
 	um := strings.ToUpper(method)
 	if path == "/" {
 		path = ""
