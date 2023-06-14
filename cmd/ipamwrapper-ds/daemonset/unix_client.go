@@ -13,7 +13,7 @@ import (
 )
 
 // NewAgentOpenAPIUnixClient creates a new instance of the agent OpenAPI unix client.
-func NewAgentOpenAPIUnixClient(unixSocketPath string) (*openAPIClient.K8IpamAgentAPI, error) {
+func NewAgentOpenAPIUnixClient(unixSocketPath string) (*openAPIClient.IpamwrapperAgentAPI, error) {
 	if unixSocketPath == "" {
 		return nil, logging.Errorf("unix socket path is nil")
 	}

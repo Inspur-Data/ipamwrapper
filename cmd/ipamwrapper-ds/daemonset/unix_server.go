@@ -6,27 +6,27 @@ package daemonset
 import (
 	"github.com/jessevdk/go-flags"
 
-	k8IPAMRestapi "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi"
-	k8IPAMOperation "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
+	IPAMRestapi "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi"
+	IPAMOperation "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
 	"github.com/go-openapi/loads"
 )
 
 // NewAgentOpenAPIUnixServer instantiates a new instance of the agent OpenAPI server on the unix.
-func NewAgentOpenAPIUnixServer() (*k8IPAMRestapi.Server, error) {
+func NewAgentOpenAPIUnixServer() (*IPAMRestapi.Server, error) {
 	// read yaml spec
-	swaggerSpec, err := loads.Embedded(k8IPAMRestapi.SwaggerJSON, k8IPAMRestapi.FlatSwaggerJSON)
+	swaggerSpec, err := loads.Embedded(IPAMRestapi.SwaggerJSON, IPAMRestapi.FlatSwaggerJSON)
 	if nil != err {
 		return nil, err
 	}
 
 	// create new service API
-	api := k8IPAMOperation.NewK8IpamAgentAPIAPI(swaggerSpec)
+	api := IPAMOperation.NewIpamwrapperAgentAPIAPI(swaggerSpec)
 
 	// daemonset API
-	api.K8IpamAgentPostIpamHandler = unixPostIp
-	api.K8IpamAgentDeleteIpamHandler = unixDeleteIp
+	api.IpamwrapperAgentPostIpamHandler = unixPostIp
+	api.IpamwrapperAgentDeleteIpamHandler = unixDeleteIp
 	// new agent OpenAPI server with api
-	srv := k8IPAMRestapi.NewServer(api)
+	srv := IPAMRestapi.NewServer(api)
 
 	// set Unix server with specified unix socket path.
 	srv.SocketPath = flags.Filename(ConfigInstance.IpamUnixSocketPath)

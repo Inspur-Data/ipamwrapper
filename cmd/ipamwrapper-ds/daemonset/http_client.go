@@ -13,7 +13,7 @@ import (
 )
 
 // NewAgentOpenAPIUnixClient creates a new instance of the agent OpenAPI unix client.
-func NewAgentOpenAPIHttpClient(host string) (*openAPIClient.K8IpamAgentAPI, error) {
+func NewAgentOpenAPIHttpClient(host string) (*openAPIClient.IpamwrapperAgentAPI, error) {
 	if host == "" {
 		return nil, logging.Errorf("host is nil")
 	}

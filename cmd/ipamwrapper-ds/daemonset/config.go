@@ -12,7 +12,7 @@ import (
 
 const (
 	HttpPort       = "5555"
-	UnixSocketPath = "/var/run/inspur/k8ipam.sock"
+	UnixSocketPath = "/var/run/inspur/ipamwrapper.sock"
 	ConfigPath     = "/tmp/inspur/config-map"
 )
 

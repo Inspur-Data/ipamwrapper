@@ -19,7 +19,7 @@ func main() {
 		if err == http.ErrServerClosed {
 			return
 		}
-		logging.Panicf("start a k8ipam unix server failed: %v", err)
+		logging.Panicf("start a ipam unix server failed: %v", err)
 	}
 }
 

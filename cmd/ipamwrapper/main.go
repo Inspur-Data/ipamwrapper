@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Inspur-Data/ipamwrapper/api/v1/client/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/client/ipamwrapper_agent"
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 	"github.com/Inspur-Data/ipamwrapper/cmd/ipamwrapper-ds/daemonset"
 	"github.com/Inspur-Data/ipamwrapper/pkg/config"
@@ -64,7 +64,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	ipamStr := string(ipamByte)
 	logging.Debugf("IPAM param :%V", ipamStr)
-	param := k8_ipam_agent.NewPostIpamParams().WithContext(ctx).WithIpamAllocArgs(&models.IpamAllocArgs{
+	param := ipamwrapper_agent.NewPostIpamParams().WithContext(ctx).WithIpamAllocArgs(&models.IpamAllocArgs{
 		ContainerID:  &args.ContainerID,
 		IfName:       &args.IfName,
 		NetNamespace: &args.Netns,
@@ -73,7 +73,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 		Ipam:         ipamStr,
 	})
 
-	ipamResponse, err := unixAgentAPI.K8IpamAgent.PostIpam(param)
+	ipamResponse, err := unixAgentAPI.IpamwrapperAgent.PostIpam(param)
 	if nil != err {
 		logging.Errorf("Post ipam alloc failed:%v", err)
 		return err
@@ -119,7 +119,7 @@ func cmdDel(args *skel.CmdArgs) error {
 		return logging.Errorf("failed to create agent client: %v", err)
 	}
 
-	param := k8_ipam_agent.NewDeleteIpamParams().WithContext(ctx).WithIpamDelArgs(&models.IpamDelArgs{
+	param := ipamwrapper_agent.NewDeleteIpamParams().WithContext(ctx).WithIpamDelArgs(&models.IpamDelArgs{
 		ContainerID:  &args.ContainerID,
 		IfName:       &args.IfName,
 		NetNamespace: args.Netns,
@@ -127,7 +127,7 @@ func cmdDel(args *skel.CmdArgs) error {
 		PodNamespace: (*string)(&podArgs.K8S_POD_NAMESPACE),
 	})
 
-	_, err = unixAgentAPI.K8IpamAgent.DeleteIpam(param)
+	_, err = unixAgentAPI.IpamwrapperAgent.DeleteIpam(param)
 	if nil != err {
 		logging.Errorf("Delete ip failed:%v", err)
 		return err
@@ -137,7 +137,7 @@ func cmdDel(args *skel.CmdArgs) error {
 	return nil
 }
 
-func convertRes(cniVersion string, response *k8_ipam_agent.PostIpamOK, interfaceName string) (*cniTypesV1.Result, error) {
+func convertRes(cniVersion string, response *ipamwrapper_agent.PostIpamOK, interfaceName string) (*cniTypesV1.Result, error) {
 	result := &cniTypesV1.Result{
 		CNIVersion: cniVersion,
 	}

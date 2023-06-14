@@ -1,28 +1,17 @@
 // This file is safe to edit. Once it exists it will not be overwritten
-
 package restapi
 
 import (
 	"crypto/tls"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/ipamwrapper_agent"
 	"net/http"
-	"server/restapi/operations"
-	"server/restapi/operations/health_check"
-	"server/restapi/operations/ipamwrapper_agent"
-)
 
-package restapi
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
-import (
-"crypto/tls"
-"net/http"
-
-"github.com/go-openapi/errors"
-"github.com/go-openapi/runtime"
-"github.com/go-openapi/runtime/middleware"
-
-"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
-"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
-"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
 )
 
 //go:generate swagger generate server --target ../../server --name IpamwrapperAgentAPI --spec ../../openapi.yaml --principal interface{}

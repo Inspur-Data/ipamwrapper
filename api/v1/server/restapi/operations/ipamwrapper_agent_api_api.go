@@ -8,7 +8,6 @@ package operations
 import (
 	"fmt"
 	"net/http"
-	"server/restapi/operations/ipamwrapper_agent"
 	"strings"
 
 	"github.com/go-openapi/errors"
@@ -21,7 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
-	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/k8_ipam_agent"
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/ipamwrapper_agent"
 )
 
 // NewIpamwrapperAgentAPIAPI creates a new IpamwrapperAgentAPI instance
