@@ -20,11 +20,11 @@ type IPAndUID struct {
 	UID string
 }
 
-type PoolNameToIPAndUIDs map[string][]IPAndUID
+type PoolGroup map[string][]IPAndUID
 
-func (pius *PoolNameToIPAndUIDs) Pools() []string {
+func (poolgroups *PoolGroup) Pools() []string {
 	var pools []string
-	for pool := range *pius {
+	for pool := range *poolgroups {
 		pools = append(pools, pool)
 	}
 

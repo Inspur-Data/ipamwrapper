@@ -24,7 +24,9 @@ type EndpointManager interface {
 	DeleteEndpoint(ctx context.Context, endpoint *inspuripamv1.IPAMEndpoint) error
 	RemoveFinalizer(ctx context.Context, endpoint *inspuripamv1.IPAMEndpoint) error
 	PatchIPAllocationResults(ctx context.Context, results []*types.AllocationResult, endpoint *inspuripamv1.IPAMEndpoint, pod *corev1.Pod, podController types.PodTopController) error
-	ReallocateCurrentIPAllocation(ctx context.Context, uid, nodeName string, endpoint *inspuripamv1.IPAMEndpoint) error
+	UpdateEndpoint(ctx context.Context, uid, nodeName string, endpoint *inspuripamv1.IPAMEndpoint) error
+	ReuseExistIP(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint) *inspuripamv1.IPAMEndpointStatus
+	IsValidEndpoint(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint, sts bool) bool
 }
 
 type endpointManager struct {
@@ -142,7 +144,7 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 	return em.client.Update(ctx, endpoint)
 }
 
-func (em *endpointManager) ReallocateCurrentIPAllocation(ctx context.Context, uid, nodeName string, endpoint *inspuripamv1.IPAMEndpoint) error {
+func (em *endpointManager) UpdateEndpoint(ctx context.Context, uid, nodeName string, endpoint *inspuripamv1.IPAMEndpoint) error {
 	if endpoint == nil {
 		return logging.Errorf("endpoint is nil")
 	}
@@ -158,12 +160,45 @@ func (em *endpointManager) ReallocateCurrentIPAllocation(ctx context.Context, ui
 	return em.client.Update(ctx, endpoint)
 }
 
+// GetEndpointIP will return the ips about the endpoint
 func GetEndpointIP(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint, isSTS bool) *inspuripamv1.IPAMEndpointStatus {
 	if endpoint == nil {
 		return nil
 	}
 
 	if endpoint.Status.UID == uid || isSTS {
+		for _, d := range endpoint.Status.IPs {
+			if d.NIC == nic {
+				return &endpoint.Status
+			}
+		}
+	}
+
+	return nil
+}
+
+func (em *endpointManager) IsValidEndpoint(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint, sts bool) bool {
+	if endpoint == nil {
+		return false
+	}
+
+	if endpoint.Status.UID == uid || sts {
+		for _, d := range endpoint.Status.IPs {
+			if d.NIC == nic {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// ReuseExistIP will reuse the ip has been allocated
+func (em *endpointManager) ReuseExistIP(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint) *inspuripamv1.IPAMEndpointStatus {
+	if endpoint == nil {
+		return nil
+	}
+
+	if endpoint.Status.UID == uid {
 		for _, d := range endpoint.Status.IPs {
 			if d.NIC == nic {
 				return &endpoint.Status

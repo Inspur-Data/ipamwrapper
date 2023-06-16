@@ -15,7 +15,7 @@ import (
 	"github.com/asaskevich/govalidator"
 )
 
-func ConvertIPDetailsToIPConfigsAndAllRoutes(details []inspuripamv1.IPAllocationDetail) ([]*models.IPConfig, []*models.Route) {
+func ConvertIPDetailsToIPsAndRoutes(details []inspuripamv1.IPAllocationDetail) ([]*models.IPConfig, []*models.Route) {
 	var ips []*models.IPConfig
 	var routes []*models.Route
 	for _, d := range details {
@@ -160,7 +160,7 @@ func ConvertResultsToIPDetails(results []*types.AllocationResult) []inspuripamv1
 	return details
 }
 
-func ConvertAnnoPodRoutesToOAIRoutes(annoPodRoutes types.AnnoPodRoutesValue) []*models.Route {
+func ConvertAnnoPodRoutesToOAIRoutes(annoPodRoutes types.AnnoPodRoutes) []*models.Route {
 	var routes []*models.Route
 	for _, r := range annoPodRoutes {
 		dst := r.Dst
@@ -202,24 +202,25 @@ func ConvertOAIRoutesToSpecRoutes(oaiRoutes []*models.Route) []inspuripamv1.Rout
 	return routes
 }
 
-func GroupIPAllocationDetails(uid string, details []inspuripamv1.IPAllocationDetail) types.PoolNameToIPAndUIDs {
-	pius := types.PoolNameToIPAndUIDs{}
+// GroupIPAllocationDetails group the ip allocation detail to map. key is ippool name,value is IP and UID
+func GroupIPAllocationDetails(uid string, details []inspuripamv1.IPAllocationDetail) types.PoolGroup {
+	poolgroup := types.PoolGroup{}
 	for _, d := range details {
 		if d.IPv4 != nil {
-			pius[*d.IPv4Pool] = append(pius[*d.IPv4Pool], types.IPAndUID{
+			poolgroup[*d.IPv4Pool] = append(poolgroup[*d.IPv4Pool], types.IPAndUID{
 				IP:  strings.Split(*d.IPv4, "/")[0],
 				UID: uid,
 			})
 		}
 		if d.IPv6 != nil {
-			pius[*d.IPv6Pool] = append(pius[*d.IPv6Pool], types.IPAndUID{
+			poolgroup[*d.IPv6Pool] = append(poolgroup[*d.IPv6Pool], types.IPAndUID{
 				IP:  strings.Split(*d.IPv6, "/")[0],
 				UID: uid,
 			})
 		}
 	}
 
-	return pius
+	return poolgroup
 }
 
 func GenIPConfigResult(allocateIP net.IP, nic string, ipPool *inspuripamv1.IPPool) *models.IPConfig {
@@ -272,31 +273,45 @@ func MarshalIPPoolAllocatedIPs(records inspuripamv1.PoolIPAllocations) (*string,
 }
 
 /*
-func UnmarshalSubnetAllocatedIPPools(data *string) (spiderpoolv2beta1.PoolIPPreAllocations, error) {
-	if data == nil {
-		return nil, nil
+	func UnmarshalSubnetAllocatedIPPools(data *string) (spiderpoolv2beta1.PoolIPPreAllocations, error) {
+		if data == nil {
+			return nil, nil
+		}
+
+		var subnetStatusAllocatedIPPool spiderpoolv2beta1.PoolIPPreAllocations
+		err := json.Unmarshal([]byte(*data), &subnetStatusAllocatedIPPool)
+		if nil != err {
+			return nil, err
+		}
+
+		return subnetStatusAllocatedIPPool, nil
 	}
 
-	var subnetStatusAllocatedIPPool spiderpoolv2beta1.PoolIPPreAllocations
-	err := json.Unmarshal([]byte(*data), &subnetStatusAllocatedIPPool)
-	if nil != err {
-		return nil, err
+	func MarshalSubnetAllocatedIPPools(preAllocations spiderpoolv2beta1.PoolIPPreAllocations) (*string, error) {
+		if len(preAllocations) == 0 {
+			return nil, nil
+		}
+
+		v, err := json.Marshal(preAllocations)
+		if err != nil {
+			return nil, err
+		}
+		data := string(v)
+
+		return &data, nil
 	}
-
-	return subnetStatusAllocatedIPPool, nil
-}
-
-func MarshalSubnetAllocatedIPPools(preAllocations spiderpoolv2beta1.PoolIPPreAllocations) (*string, error) {
-	if len(preAllocations) == 0 {
-		return nil, nil
-	}
-
-	v, err := json.Marshal(preAllocations)
-	if err != nil {
-		return nil, err
-	}
-	data := string(v)
-
-	return &data, nil
-}
 */
+func ConvertAnnoRoutes(annoPodRoutes types.AnnoPodRoutes) []*models.Route {
+	var routes []*models.Route
+	for _, r := range annoPodRoutes {
+		dst := r.Dst
+		gw := r.Gw
+		routes = append(routes, &models.Route{
+			IfName: new(string),
+			Dst:    &dst,
+			Gw:     &gw,
+		})
+	}
+
+	return routes
+}

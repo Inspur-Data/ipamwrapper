@@ -10,7 +10,9 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
+
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -26,22 +28,35 @@ type ipam struct {
 	podManager      podmanager.PodManager
 	endpointManager endpointmanager.EndpointManager
 	ippoolManager   ippoolmanager.IPPoolManager
+	nsManager       nsmanager.NsManager
 }
 
 // NewIPAM init a new IPAM instance
-func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager, endpointMgr endpointmanager.EndpointManager, ippoolMgr ippoolmanager.IPPoolManager) (IPAM, error) {
+func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
+	endpointMgr endpointmanager.EndpointManager,
+	ippoolMgr ippoolmanager.IPPoolManager,
+	nsMgr nsmanager.NsManager) (IPAM, error) {
 	if podMgr == nil {
 		return nil, logging.Errorf("podManager is nil")
 	}
 
 	if endpointMgr == nil {
+		return nil, logging.Errorf("endpointManager is nil")
+	}
 
+	if ippoolMgr == nil {
+		return nil, logging.Errorf("ippoolManager is nil")
+	}
+
+	if nsMgr == nil {
+		return nil, logging.Errorf("nsManager is nil")
 	}
 	return &ipam{
 		podManager:      podMgr,
 		config:          config,
 		endpointManager: endpointMgr,
 		ippoolManager:   ippoolMgr,
+		nsManager:       nsMgr,
 	}, nil
 }
 
@@ -74,10 +89,32 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 
 	if i.config.EnableStatefulSet && owner.APIVersion == appsv1.SchemeGroupVersion.String() && owner.Kind == constant.KindStatefulSet {
 		logging.Debugf("owner is statefulset,try to reuse the ip")
+		res, err := i.reuseStsIP(ctx, *addArgs.IfName, pod, ed)
+		if err != nil {
+			logging.Errorf("reuse statefulset ip failed:%v", err)
+			return nil, err
+		}
+
+		if res != nil {
+			return res, nil
+		}
 	} else {
-		logging.Debugf("Try to retrieve the existing IP allocation")
+		logging.Debugf("reuse the existing IP")
+		res, err := i.reuseExistingIP(ctx, string(pod.UID), *addArgs.IfName, ed)
+		if err != nil {
+			logging.Errorf("reuse exist ip failed:%v", err)
+			return nil, err
+		}
+		if res != nil {
+			return res, nil
+		}
 	}
-	return nil, nil
+	res, err := i.allocateIps(ctx, addArgs, pod, ed, owner)
+	if err != nil {
+		logging.Errorf("allocate ip failed:%v", err)
+		return nil, err
+	}
+	return res, err
 }
 
 // Delete release the ip with the given param

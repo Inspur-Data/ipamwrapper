@@ -15,7 +15,6 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 
-
 // PostIpamReader is a Reader for the PostIpam structure.
 type PostIpamReader struct {
 	formats strfmt.Registry

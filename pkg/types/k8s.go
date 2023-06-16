@@ -42,7 +42,7 @@ type AnnoIPPoolItem struct {
 	CleanGateway bool     `json:"cleangateway"`
 }
 
-type AnnoPodRoutesValue []AnnoRouteItem
+type AnnoPodRoutes []AnnoRouteItem
 
 type AnnoRouteItem struct {
 	Dst string `json:"dst"`

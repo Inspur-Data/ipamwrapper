@@ -41,3 +41,13 @@ const (
 const (
 	IPAMFinalizer = "inspur.io"
 )
+
+const (
+	Pre                 = "ipam.inspur.io"
+	AnnoPodIPPool       = Pre + "/ippool"
+	AnnoPodIPPools      = Pre + "/ippools"
+	AnnoPodRoutes       = Pre + "/routes"
+	AnnoPodDNS          = Pre + "/dns"
+	AnnoNSDefautlV4Pool = Pre + "/default-ipv4-ippool"
+	AnnoNSDefautlV6Pool = Pre + "/default-ipv6-ippool"
+)

@@ -19,11 +19,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
 	"github.com/go-openapi/runtime/flagext"
 	"github.com/go-openapi/swag"
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
-	"github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations"
 )
 
 const (

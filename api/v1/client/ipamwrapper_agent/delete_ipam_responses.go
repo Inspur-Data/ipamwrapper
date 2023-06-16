@@ -15,7 +15,6 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 )
 
-
 // DeleteIpamReader is a Reader for the DeleteIpam structure.
 type DeleteIpamReader struct {
 	formats strfmt.Registry
