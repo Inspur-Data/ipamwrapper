@@ -68,7 +68,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 		return nil, err
 	}
 
-	//get pod's top owner
+	//get pod's top owner,if the top owner is sts,it will return directly
 	owner, err := i.podManager.GetPodTopOwner(ctx, pod)
 	if err != nil {
 		logging.Errorf("get pod top owner failed:%v", err)

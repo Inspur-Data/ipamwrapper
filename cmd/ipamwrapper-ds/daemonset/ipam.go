@@ -4,6 +4,7 @@
 package daemonset
 
 import (
+	"context"
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 	IPAMServerAgent "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/ipamwrapper_agent"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
@@ -29,9 +30,13 @@ func (g *unixPostIpStruct) Handle(params IPAMServerAgent.PostIpamParams) middlew
 	}
 
 	//todo 实现申请IP真正逻辑
-
-	resp := models.IpamAllocResponse{}
-	return IPAMServerAgent.NewPostIpamOK().WithPayload(&resp)
+	ctx := context.Background()
+	resp, err := ipamAgent.IPAM.Allocate(ctx, params.IpamAllocArgs)
+	if err != nil {
+		logging.Errorf("allocate IP failed: %v", err)
+		return nil
+	}
+	return IPAMServerAgent.NewPostIpamOK().WithPayload(resp)
 }
 
 type unixDeleteIpStruct struct{}

@@ -42,11 +42,12 @@ type Config struct {
 	LogLevel      string
 	EnabledMetric bool
 
-	HttpPort         string
-	MetricHttpPort   string
-	GopsListenPort   string
-	PyroscopeAddress string
-
+	HttpPort                 string
+	MetricHttpPort           string
+	GopsListenPort           string
+	PyroscopeAddress         string
+	ClusterDefaultIPv4IPPool []string `yaml:"clusterDefaultIPv4IPPool"`
+	ClusterDefaultIPv6IPPool []string `yaml:"clusterDefaultIPv6IPPool"`
 	IPPoolMaxAllocatedIPs    int
 	WaitSubnetPoolTime       int
 	WaitSubnetPoolMaxRetries int

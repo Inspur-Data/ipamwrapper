@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	//init resource
+	daemonset.Daemon()
 	logging.Debugf("http server will start.....")
 	srv, err := daemonset.NewAgentOpenAPIUnixServer()
 	//srv, err := daemonset.NewIPAMHttpServer()
