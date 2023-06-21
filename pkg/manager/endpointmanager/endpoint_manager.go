@@ -109,14 +109,13 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 	}
 
 	if endpoint == nil {
+
 		endpoint = &inspuripamv1.IPAMEndpoint{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      pod.Name,
 				Namespace: pod.Namespace,
 			},
-			Status: inspuripamv1.IPAMEndpointStatus{
-				IPs: convert.ConvertResultsToIPDetails(results),
-			},
+			Spec: inspuripamv1.IPAMEndpointSpec{},
 		}
 
 		// Do not set ownerReference for Endpoint when its corresponding Pod is
@@ -130,7 +129,24 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 			}
 		}
 		controllerutil.AddFinalizer(endpoint, constant.IPAMFinalizer)
-		return em.client.Create(ctx, endpoint)
+		err := em.client.Create(ctx, endpoint)
+		if err != nil {
+			logging.Errorf("create endpoint failed:%v", err)
+			return err
+		}
+
+		//update the endpoint's status
+		endpoint.Status = inspuripamv1.IPAMEndpointStatus{
+			IPs:  convert.ConvertResultsToIPDetails(results),
+			UID:  string(pod.UID),
+			Node: pod.Spec.NodeName,
+		}
+		err = em.client.Status().Update(ctx, endpoint)
+		if err != nil {
+			logging.Errorf("update endpoint failed:%v", err)
+			return err
+		}
+		return nil
 	}
 
 	//todo add pod UID
@@ -139,9 +155,9 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 		return nil
 	}
 
-	// TODO(iiiceoo): Only append records with different NIC.
+	// TODO: Only append records with different NIC.
 	endpoint.Status.IPs = append(endpoint.Status.IPs, convert.ConvertResultsToIPDetails(results)...)
-	return em.client.Update(ctx, endpoint)
+	return em.client.Status().Update(ctx, endpoint)
 }
 
 func (em *endpointManager) UpdateEndpoint(ctx context.Context, uid, nodeName string, endpoint *inspuripamv1.IPAMEndpoint) error {
@@ -168,7 +184,7 @@ func GetEndpointIP(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint, isSTS b
 
 	if endpoint.Status.UID == uid || isSTS {
 		for _, d := range endpoint.Status.IPs {
-			if d.NIC == nic {
+			if *d.NIC == nic {
 				return &endpoint.Status
 			}
 		}
@@ -184,7 +200,7 @@ func (em *endpointManager) IsValidEndpoint(uid, nic string, endpoint *inspuripam
 
 	if endpoint.Status.UID == uid || sts {
 		for _, d := range endpoint.Status.IPs {
-			if d.NIC == nic {
+			if *d.NIC == nic {
 				return true
 			}
 		}
@@ -200,7 +216,7 @@ func (em *endpointManager) ReuseExistIP(uid, nic string, endpoint *inspuripamv1.
 
 	if endpoint.Status.UID == uid {
 		for _, d := range endpoint.Status.IPs {
-			if d.NIC == nic {
+			if *d.NIC == nic {
 				return &endpoint.Status
 			}
 		}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
 	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"github.com/asaskevich/govalidator"
@@ -25,13 +26,13 @@ func ConvertIPDetailsToIPsAndRoutes(details []inspuripamv1.IPAllocationDetail) (
 			var ipv4Gateway string
 			if d.IPv4Gateway != nil {
 				ipv4Gateway = *d.IPv4Gateway
-				routes = append(routes, genDefaultRoute(nic, ipv4Gateway))
+				routes = append(routes, genDefaultRoute(*nic, ipv4Gateway))
 			}
 			ips = append(ips, &models.IPConfig{
 				Address: d.IPv4,
 				Gateway: ipv4Gateway,
 				IPPool:  *d.IPv4Pool,
-				Nic:     &nic,
+				Nic:     nic,
 				Version: &version,
 			})
 		}
@@ -41,18 +42,18 @@ func ConvertIPDetailsToIPsAndRoutes(details []inspuripamv1.IPAllocationDetail) (
 			var ipv6Gateway string
 			if d.IPv6Gateway != nil {
 				ipv6Gateway = *d.IPv6Gateway
-				routes = append(routes, genDefaultRoute(nic, ipv6Gateway))
+				routes = append(routes, genDefaultRoute(*nic, ipv6Gateway))
 			}
 			ips = append(ips, &models.IPConfig{
 				Address: d.IPv6,
 				Gateway: ipv6Gateway,
 				IPPool:  *d.IPv6Pool,
-				Nic:     &nic,
+				Nic:     nic,
 				Version: &version,
 			})
 		}
 
-		routes = append(routes, ConvertSpecRoutesToOAIRoutes(d.NIC, d.Routes)...)
+		routes = append(routes, ConvertSpecRoutesToOAIRoutes(*d.NIC, d.Routes)...)
 	}
 
 	return ips, routes
@@ -126,6 +127,10 @@ func ConvertResultsToIPDetails(results []*types.AllocationResult) []inspuripamv1
 				d.IPv6 = r.IP.Address
 				d.IPv6Pool = &r.IP.IPPool
 				d.IPv6Gateway = gateway
+				//test
+				/*
+					rout := inspuripamv1.Route{Dst: "12.2.3.4", Gw: "1.2.3.1"}
+					routes = append(routes, &rout)*/
 				d.Routes = append(d.Routes, routes...)
 			}
 			continue
@@ -133,7 +138,7 @@ func ConvertResultsToIPDetails(results []*types.AllocationResult) []inspuripamv1
 
 		if *r.IP.Version == constant.IPv4 {
 			nicToDetail[*r.IP.Nic] = &inspuripamv1.IPAllocationDetail{
-				NIC:          *r.IP.Nic,
+				NIC:          r.IP.Nic,
 				IPv4:         &address,
 				IPv4Pool:     &pool,
 				IPv4Gateway:  gateway,
@@ -142,7 +147,7 @@ func ConvertResultsToIPDetails(results []*types.AllocationResult) []inspuripamv1
 			}
 		} else {
 			nicToDetail[*r.IP.Nic] = &inspuripamv1.IPAllocationDetail{
-				NIC:          *r.IP.Nic,
+				NIC:          r.IP.Nic,
 				IPv6:         &address,
 				IPv6Pool:     &pool,
 				IPv6Gateway:  gateway,
@@ -175,7 +180,7 @@ func ConvertAnnoPodRoutesToOAIRoutes(annoPodRoutes types.AnnoPodRoutes) []*model
 	return routes
 }
 
-func ConvertSpecRoutesToOAIRoutes(nic string, specRoutes []inspuripamv1.Route) []*models.Route {
+func ConvertSpecRoutesToOAIRoutes(nic string, specRoutes []*inspuripamv1.Route) []*models.Route {
 	var routes []*models.Route
 	for _, r := range specRoutes {
 		dst := r.Dst
@@ -190,10 +195,10 @@ func ConvertSpecRoutesToOAIRoutes(nic string, specRoutes []inspuripamv1.Route) [
 	return routes
 }
 
-func ConvertOAIRoutesToSpecRoutes(oaiRoutes []*models.Route) []inspuripamv1.Route {
-	var routes []inspuripamv1.Route
+func ConvertOAIRoutesToSpecRoutes(oaiRoutes []*models.Route) []*inspuripamv1.Route {
+	var routes []*inspuripamv1.Route
 	for _, r := range oaiRoutes {
-		routes = append(routes, inspuripamv1.Route{
+		routes = append(routes, &inspuripamv1.Route{
 			Dst: *r.Dst,
 			Gw:  *r.Gw,
 		})
@@ -224,25 +229,24 @@ func GroupIPAllocationDetails(uid string, details []inspuripamv1.IPAllocationDet
 }
 
 func GenIPConfigResult(allocateIP net.IP, nic string, ipPool *inspuripamv1.IPPool) *models.IPConfig {
-	/*
-		ipNet, _ := spiderpoolip.ParseIP(*ipPool.Spec.IPVersion, ipPool.Spec.Subnet, true)
-		ipNet.IP = allocateIP
-		address := ipNet.String()
 
-		var gateway string
-		if ipPool.Spec.Gateway != nil {
-			gateway = *ipPool.Spec.Gateway
-		}
+	ipNet, _ := ipamip.ParseIP(*ipPool.Spec.IPVersion, ipPool.Spec.CIDR, true)
+	ipNet.IP = allocateIP
+	address := ipNet.String()
 
-		return &models.IPConfig{
-			Address: &address,
-			Gateway: gateway,
-			IPPool:  ipPool.Name,
-			Nic:     &nic,
-			Version: ipPool.Spec.IPVersion,
-			Vlan:    *ipPool.Spec.Vlan,
-		}*/
-	return &models.IPConfig{}
+	var gateway string
+	if ipPool.Spec.Gateway != nil {
+		gateway = *ipPool.Spec.Gateway
+	}
+
+	return &models.IPConfig{
+		Address: &address,
+		Gateway: gateway,
+		IPPool:  ipPool.Name,
+		Nic:     &nic,
+		Version: ipPool.Spec.IPVersion,
+	}
+
 }
 
 func UnmarshalIPPoolAllocatedIPs(data *string) (inspuripamv1.PoolIPAllocations, error) {

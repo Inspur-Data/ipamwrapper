@@ -45,7 +45,7 @@ type IPPoolSpec struct {
 	Gateway *string `json:"gateway,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	Routes []Route `json:"routes,omitempty"`
+	Routes []*Route `json:"routes,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	NamespaceAffinity *metav1.LabelSelector `json:"namespaceAffinity,omitempty"`

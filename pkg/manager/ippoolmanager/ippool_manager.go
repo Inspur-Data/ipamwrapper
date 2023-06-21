@@ -5,7 +5,9 @@ package ippoolmanager
 
 import (
 	"context"
+	"k8s.io/client-go/tools/cache"
 
+	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	"github.com/Inspur-Data/ipamwrapper/pkg/utils/retry"
@@ -21,12 +23,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const defaultMaxAllocatedIPs = 10240
+const defaultMaxAllocatedIPs = 1024
 
 type IPPoolManager interface {
 	GetIPPoolByName(ctx context.Context, poolName string, cached bool) (*inspuripamv1.IPPool, error)
 	ListIPPools(ctx context.Context, cached bool, opts ...client.ListOption) (*inspuripamv1.IPPoolList, error)
-	AllocateIP(ctx context.Context, poolName, nic string, pod *corev1.Pod) (*models.IPConfig, error)
+	AllocateIP(ctx context.Context, pool *inspuripamv1.IPPool, nic string, pod *corev1.Pod) (*models.IPConfig, error)
 	ReleaseIP(ctx context.Context, poolName string, ipAndUIDs []types.IPAndUID) error
 	UpdateAllocatedIPs(ctx context.Context, poolName string, ipAndCIDs []types.IPAndUID) error
 }
@@ -71,7 +73,7 @@ func (im *ipPoolManager) GetIPPoolByName(ctx context.Context, poolName string, c
 	}
 
 	var ipPool inspuripamv1.IPPool
-	if err := reader.Get(ctx, apitypes.NamespacedName{Name: poolName}, &ipPool); err != nil {
+	if err := reader.Get(ctx, apitypes.NamespacedName{Name: poolName, Namespace: "default"}, &ipPool); err != nil {
 		return nil, err
 	}
 
@@ -92,17 +94,18 @@ func (im *ipPoolManager) ListIPPools(ctx context.Context, cached bool, opts ...c
 	return &ipPoolList, nil
 }
 
-func (im *ipPoolManager) AllocateIP(ctx context.Context, poolName, nic string, pod *corev1.Pod) (*models.IPConfig, error) {
+func (im *ipPoolManager) AllocateIP(ctx context.Context, ipPool *inspuripamv1.IPPool, nic string, pod *corev1.Pod) (*models.IPConfig, error) {
 
 	backoff := retry.DefaultRetry
 	//steps := backoff.Steps
 	var ipConfig *models.IPConfig
 	err := retry.RetryOnConflictWithContext(ctx, backoff, func(ctx context.Context) error {
 		logging.Debugf("retry  ip allocation")
-		ipPool, err := im.GetIPPoolByName(ctx, poolName, constant.IgnoreCache)
-		if err != nil {
-			return err
-		}
+		/*
+			ipPool, err := im.GetIPPoolByName(ctx, poolName, constant.IgnoreCache)
+			if err != nil {
+				return err
+			}*/
 
 		logging.Debugf("generate a random IP address")
 		allocatedIP, err := im.genRandomIP(ctx, nic, ipPool, pod)
@@ -131,69 +134,68 @@ func (im *ipPoolManager) AllocateIP(ctx context.Context, poolName, nic string, p
 }
 
 func (im *ipPoolManager) genRandomIP(ctx context.Context, nic string, ipPool *inspuripamv1.IPPool, pod *corev1.Pod) (net.IP, error) {
-	//tod implement this function
+	//todo exclude the reserverd ips
 	/*
 		reservedIPs, err := im.rIPManager.AssembleReservedIPs(ctx, *ipPool.Spec.IPVersion)
 		if err != nil {
 			return nil, err
-		}
+		}*/
+	var reservedIPs []net.IP
+	allocatedRecords, err := convert.UnmarshalIPPoolAllocatedIPs(ipPool.Status.AllocatedIPs)
+	if err != nil {
+		return nil, err
+	}
 
-		allocatedRecords, err := convert.UnmarshalIPPoolAllocatedIPs(ipPool.Status.AllocatedIPs)
-		if err != nil {
-			return nil, err
-		}
+	var used []string
+	for ip := range allocatedRecords {
+		used = append(used, ip)
+	}
+	usedIPs, err := ipamip.ParseIPRanges(*ipPool.Spec.IPVersion, used)
+	if err != nil {
+		return nil, err
+	}
 
-		var used []string
-		for ip := range allocatedRecords {
-			used = append(used, ip)
-		}
-		usedIPs, err := spiderpoolip.ParseIPRanges(*ipPool.Spec.IPVersion, used)
-		if err != nil {
-			return nil, err
-		}
+	totalIPs, err := ipamip.AssembleTotalIPs(*ipPool.Spec.IPVersion, ipPool.Spec.IPs, ipPool.Spec.ExcludeIPs)
+	if err != nil {
+		return nil, err
+	}
 
-		totalIPs, err := spiderpoolip.AssembleTotalIPs(*ipPool.Spec.IPVersion, ipPool.Spec.IPs, ipPool.Spec.ExcludeIPs)
-		if err != nil {
-			return nil, err
-		}
+	availableIPs := ipamip.IPsDiffSet(totalIPs, append(reservedIPs, usedIPs...), false)
+	if len(availableIPs) == 0 {
+		return nil, logging.Errorf("ip has been used up in ippool:%s", ipPool.Name)
+	}
+	resIP := availableIPs[0]
 
-		availableIPs := spiderpoolip.IPsDiffSet(totalIPs, append(reservedIPs, usedIPs...), false)
-		if len(availableIPs) == 0 {
-			return nil, constant.ErrIPUsedOut
-		}
-		resIP := availableIPs[0]
+	key, err := cache.MetaNamespaceKeyFunc(pod)
+	if err != nil {
+		return nil, err
+	}
 
-		key, err := cache.MetaNamespaceKeyFunc(pod)
-		if err != nil {
-			return nil, err
-		}
+	if allocatedRecords == nil {
+		allocatedRecords = inspuripamv1.PoolIPAllocations{}
+	}
+	allocatedRecords[resIP.String()] = inspuripamv1.PoolIPAllocation{
+		NIC:            nic,
+		NamespacedName: key,
+		PodUID:         string(pod.UID),
+	}
 
-		if allocatedRecords == nil {
-			allocatedRecords = inspuripamv1.PoolIPAllocations{}
-		}
-		allocatedRecords[resIP.String()] = inspuripamv1.PoolIPAllocation{
-			NIC:            nic,
-			NamespacedName: key,
-			PodUID:         string(pod.UID),
-		}
+	data, err := convert.MarshalIPPoolAllocatedIPs(allocatedRecords)
+	if err != nil {
+		return nil, err
+	}
+	ipPool.Status.AllocatedIPs = data
 
-		data, err := convert.MarshalIPPoolAllocatedIPs(allocatedRecords)
-		if err != nil {
-			return nil, err
-		}
-		ipPool.Status.AllocatedIPs = data
+	if ipPool.Status.AllocatedIPCount == nil {
+		ipPool.Status.AllocatedIPCount = new(int64)
+	}
 
-		if ipPool.Status.AllocatedIPCount == nil {
-			ipPool.Status.AllocatedIPCount = new(int64)
-		}
+	*ipPool.Status.AllocatedIPCount++
+	if *ipPool.Status.AllocatedIPCount > int64(*im.config.MaxAllocatedIPs) {
+		return nil, logging.Errorf("ippool %s ip has exceeded", ipPool.Name)
+	}
 
-		*ipPool.Status.AllocatedIPCount++
-		if *ipPool.Status.AllocatedIPCount > int64(*im.config.MaxAllocatedIPs) {
-			return nil, fmt.Errorf("%w, threshold of IP records(<=%d) for IPPool %s exceeded", constant.ErrIPUsedOut, im.config.MaxAllocatedIPs, ipPool.Name)
-		}
-
-		return resIP, nil*/
-	return nil, nil
+	return resIP, nil
 }
 
 func (im *ipPoolManager) ReleaseIP(ctx context.Context, poolName string, ipAndUIDs []types.IPAndUID) error {
@@ -308,7 +310,7 @@ func (im *ipPoolManager) UpdateAllocatedIPs(ctx context.Context, poolName string
 }
 
 func setDefaultsForIPPoolManagerConfig(config MgrConfig) MgrConfig {
-	if config.MaxAllocatedIPs == nil {
+	if config.MaxAllocatedIPs == nil || *config.MaxAllocatedIPs == 0 {
 		maxAllocatedIPs := defaultMaxAllocatedIPs
 		config.MaxAllocatedIPs = &maxAllocatedIPs
 	}

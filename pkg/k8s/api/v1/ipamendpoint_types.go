@@ -24,8 +24,8 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type IPAllocationDetail struct {
-	// +kubebuilder:validation:Required
-	NIC string `json:"interface"`
+	// +kubebuilder:validation:Optional
+	NIC *string `json:"interface,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	IPv4 *string `json:"ipv4,omitempty"`
@@ -49,7 +49,7 @@ type IPAllocationDetail struct {
 	CleanGateway *bool `json:"cleanGateway,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	Routes []Route `json:"routes,omitempty"`
+	Routes []*Route `json:"routes,omitempty"`
 }
 
 // IPAMEndpointSpec defines the desired state of IPAMEndpoint
@@ -63,14 +63,14 @@ type IPAMEndpointSpec struct {
 type IPAMEndpointStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	// +kubebuilder:validation:Required
-	IPs []IPAllocationDetail `json:"ips"`
+	// +kubebuilder:validation:Optional
+	IPs []IPAllocationDetail `json:"ips,omitempty"`
 
-	// +kubebuilder:validation:Required
-	UID string `json:"uid"`
+	// +kubebuilder:validation:Optional
+	UID string `json:"uid,omitempty"`
 
-	// +kubebuilder:validation:Required
-	Node string `json:"node"`
+	// +kubebuilder:validation:Optional
+	Node string `json:"node,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -81,7 +81,8 @@ type IPAMEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   IPAMEndpointSpec   `json:"spec,omitempty"`
+	Spec IPAMEndpointSpec `json:"spec,omitempty"`
+
 	Status IPAMEndpointStatus `json:"status,omitempty"`
 }
 

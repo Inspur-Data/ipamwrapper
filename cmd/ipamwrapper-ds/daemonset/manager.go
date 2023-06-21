@@ -11,8 +11,6 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 )
 
 var scheme = runtime.NewScheme()
@@ -32,15 +30,17 @@ func newManager() (ctrl.Manager, error) {
 		HealthProbeBindAddress: "0",
 	})
 	if err != nil {
+		logging.Errorf("newmanager failed:%v", err)
 		return nil, err
 	}
 
-	if err := mgr.GetFieldIndexer().IndexField(ipamAgent.InnerCtx, &inspuripamv1.IPPool{}, "spec.default", func(raw client.Object) []string {
-		ipPool := raw.(*inspuripamv1.IPPool)
-		return []string{strconv.FormatBool(*ipPool.Spec.Default)}
-	}); err != nil {
-		return nil, err
-	}
+	/*
+		if err := mgr.GetFieldIndexer().IndexField(ipamAgent.InnerCtx, &inspuripamv1.IPPool{}, "spec.default", func(raw client.Object) []string {
+			ipPool := raw.(*inspuripamv1.IPPool)
+			return []string{strconv.FormatBool(*ipPool.Spec.Default)}
+		}); err != nil {
+			return nil, err
+		}*/
 
 	return mgr, nil
 }
@@ -65,7 +65,7 @@ func initManager() {
 	}
 	ipamAgent.PodMgr = podManager
 
-	logging.Panicf("init endpoint manager")
+	logging.Debugf("init endpoint manager")
 	endpointManager, err := endpointmanager.NewEndpointManager(
 		ipamAgent.Mgr.GetClient(),
 		ipamAgent.Mgr.GetAPIReader(),

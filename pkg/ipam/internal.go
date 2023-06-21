@@ -11,7 +11,6 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 	"sync"
 )
 
@@ -130,7 +129,7 @@ func (i *ipam) allocateIps(ctx context.Context, addArgs *models.IpamAllocArgs, p
 	}
 
 	res, err := i.allocateIPsFromAllCandidates(ctx, *addArgs.IfName, ippoolCandidate, pod, true)
-	if err != nil {
+	if err != nil || res == nil {
 		return nil, logging.Errorf("allocate ip from candidate failed:%v", err)
 	}
 
@@ -229,10 +228,12 @@ func (i *ipam) getDefaultIPPoolFromNetconf(ctx context.Context, nic string, defa
 
 // getDefaultIPPool get the ippool from cluster who has the default spec
 func (i *ipam) getDefaultIPPool(ctx context.Context, nic string, cleanGateway bool) (*types.AnnoPodIPPoolValue, error) {
+
 	ipPoolList, err := i.ippoolManager.ListIPPools(
 		ctx,
 		constant.UseCache,
-		client.MatchingFields{"spec.default": strconv.FormatBool(true)},
+		client.MatchingLabels{"default": "true"},
+		//client.MatchingFields{"spec.default": strconv.FormatBool(true)},
 	)
 	if err != nil {
 		logging.Errorf("list ippool failed:%v", err)
@@ -274,7 +275,7 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 	v4IppoolsMap := make(map[string]*inspuripamv1.IPPool)
 	v6IppoolsMap := make(map[string]*inspuripamv1.IPPool)
 	for _, v4pool := range ippools.IPv4Pools {
-		ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v4pool, true)
+		ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v4pool, false)
 		if err != nil {
 			logging.Errorf("get ippool:%s failed :%v", v4pool, err)
 			continue
@@ -316,9 +317,9 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 	//todo concurrent allocate !!!!!
 	var result []*types.AllocationResult
 	for name, v4ippool := range v4IppoolsMap {
-		ip, err := i.ippoolManager.AllocateIP(ctx, name, nic, pod)
+		ip, err := i.ippoolManager.AllocateIP(ctx, v4ippool, nic, pod)
 		if err != nil {
-			logging.Errorf("allocate from ipool:%s failed:%v", v4ippool, err)
+			logging.Errorf("allocate from ipool:%s failed:%v", name, err)
 			continue
 		}
 		res := &types.AllocationResult{

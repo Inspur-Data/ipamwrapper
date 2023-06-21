@@ -199,7 +199,7 @@ func (in *IPPoolSpec) DeepCopyInto(out *IPPoolSpec) {
 	}
 	if in.Routes != nil {
 		in, out := &in.Routes, &out.Routes
-		*out = make([]Route, len(*in))
+		*out = make([]*Route, len(*in))
 		copy(*out, *in)
 	}
 	if in.NamespaceAffinity != nil {
