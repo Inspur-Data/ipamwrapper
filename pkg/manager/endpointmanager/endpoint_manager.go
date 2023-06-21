@@ -116,6 +116,7 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 			},
 			Status: inspuripamv1.IPAMEndpointStatus{
 				IPs: convert.ConvertResultsToIPDetails(results),
+				UID: string(pod.UID),
 			},
 		}
 

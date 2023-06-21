@@ -35,15 +35,15 @@ func cmdCheck(args *skel.CmdArgs) error {
 }
 
 func cmdAdd(args *skel.CmdArgs) error {
-	logging.Debugf("Enter cmdAdd function")
+	logging.Debugf("enter cmdAdd function")
 	cniConfig, err := config.ParseConfig(args.StdinData)
 	if err != nil {
-		return logging.Errorf("ParseConfig failed:%v", err)
+		return logging.Errorf("parseConfig failed:%v", err)
 	}
 
 	podArgs := config.PodArgs{}
 	if err = types.LoadArgs(args.Args, &podArgs); nil != err {
-		return logging.Errorf("Load Pod args failed:%v", err)
+		return logging.Errorf("load Pod args failed:%v", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -75,20 +75,20 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	ipamResponse, err := unixAgentAPI.IpamwrapperAgent.PostIpam(param)
 	if nil != err {
-		logging.Errorf("Post ipam alloc failed:%v", err)
+		logging.Errorf("post ipam alloc failed:%v", err)
 		return err
 	}
 
 	// check the  request response.
 	if err = ipamResponse.Payload.Validate(strfmt.Default); nil != err {
-		logging.Errorf("Check the response failed:%v", err)
+		logging.Errorf("check the response failed:%v", err)
 		return err
 	}
 
 	//convert the response
 	res, err := convertRes(cniConfig.CNIVersion, ipamResponse, args.IfName)
 	if err != nil {
-		logging.Errorf("Convert the response failed:%v", err)
+		logging.Errorf("convert the response failed:%v", err)
 		return err
 	}
 
@@ -97,7 +97,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 }
 
 func cmdDel(args *skel.CmdArgs) error {
-	logging.Debugf("Enter cmdDel function")
+	logging.Debugf("enter cmdDel function")
 	cniConfig, err := config.ParseConfig(args.StdinData)
 	if err != nil {
 		return logging.Errorf("ParseConfig failed")
@@ -129,11 +129,11 @@ func cmdDel(args *skel.CmdArgs) error {
 
 	_, err = unixAgentAPI.IpamwrapperAgent.DeleteIpam(param)
 	if nil != err {
-		logging.Errorf("Delete ip failed:%v", err)
+		logging.Errorf("delete ip failed:%v", err)
 		return err
 	}
 
-	logging.Debugf("Delete IP success")
+	logging.Debugf("delete ip success")
 	return nil
 }
 
@@ -148,7 +148,7 @@ func convertRes(cniVersion string, response *ipamwrapper_agent.PostIpamOK, inter
 			if *ip.Nic == interfaceName {
 				address, err := ipTools.ParseIP(*ip.Version, *ip.Address, true)
 				if err != nil {
-					return nil, logging.Errorf("ParseIP failed %v", err)
+					return nil, logging.Errorf("parseIP failed %v", err)
 				}
 				result.IPs = append(result.IPs, &cniTypesV1.IPConfig{
 					Address: *address,
@@ -164,7 +164,7 @@ func convertRes(cniVersion string, response *ipamwrapper_agent.PostIpamOK, inter
 			if *route.IfName == interfaceName {
 				_, dst, err := net.ParseCIDR(*route.Dst)
 				if err != nil {
-					return nil, logging.Errorf("Parse CIDR failed %v", err)
+					return nil, logging.Errorf("parse CIDR failed %v", err)
 				}
 				result.Routes = append(result.Routes, &types.Route{
 					Dst: *dst,

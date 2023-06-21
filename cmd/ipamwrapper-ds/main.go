@@ -10,8 +10,8 @@ func main() {
 	//init resource
 	daemonset.Daemon()
 	logging.Debugf("http server will start.....")
-	srv, err := daemonset.NewAgentOpenAPIUnixServer()
-	//srv, err := daemonset.NewIPAMHttpServer()
+	//srv, err := daemonset.NewAgentOpenAPIUnixServer()
+	srv, err := daemonset.NewIPAMHttpServer()
 	if err != nil {
 		logging.Errorf("get unix server instance failed:%v", err)
 		return
@@ -19,6 +19,7 @@ func main() {
 	err = srv.Serve()
 	if err != nil {
 		if err == http.ErrServerClosed {
+			logging.Errorf("server has closed")
 			return
 		}
 		logging.Panicf("start a ipam unix server failed: %v", err)

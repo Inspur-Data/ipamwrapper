@@ -1,18 +1,21 @@
 package daemonset
 
 import (
+	"context"
 	ipam2 "github.com/Inspur-Data/ipamwrapper/pkg/ipam"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"time"
 )
 
 func Daemon() {
+	//set the context
+	ipamAgent.InnerCtx, ipamAgent.InnerCancel = context.WithCancel(context.Background())
+
 	//new manager
 	mgr, err := newManager()
 	if err != nil {
 		logging.Panicf("new manger failed:%v", err)
 	}
-
 	ipamAgent.Mgr = mgr
 
 	//init manager
@@ -35,7 +38,9 @@ func Daemon() {
 	ipamAgent.IPAM = ipam
 
 	go func() {
-		mgr.Start(ipamAgent.InnerCtx)
+		err := mgr.Start(ipamAgent.InnerCtx)
+		if err != nil {
+			logging.Errorf("manager start failed:%v", err)
+		}
 	}()
-
 }

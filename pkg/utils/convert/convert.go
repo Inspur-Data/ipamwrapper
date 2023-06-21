@@ -10,6 +10,7 @@ import (
 
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
 	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"github.com/asaskevich/govalidator"
@@ -224,25 +225,24 @@ func GroupIPAllocationDetails(uid string, details []inspuripamv1.IPAllocationDet
 }
 
 func GenIPConfigResult(allocateIP net.IP, nic string, ipPool *inspuripamv1.IPPool) *models.IPConfig {
-	/*
-		ipNet, _ := spiderpoolip.ParseIP(*ipPool.Spec.IPVersion, ipPool.Spec.Subnet, true)
-		ipNet.IP = allocateIP
-		address := ipNet.String()
 
-		var gateway string
-		if ipPool.Spec.Gateway != nil {
-			gateway = *ipPool.Spec.Gateway
-		}
+	ipNet, _ := ipamip.ParseIP(*ipPool.Spec.IPVersion, ipPool.Spec.CIDR, true)
+	ipNet.IP = allocateIP
+	address := ipNet.String()
 
-		return &models.IPConfig{
-			Address: &address,
-			Gateway: gateway,
-			IPPool:  ipPool.Name,
-			Nic:     &nic,
-			Version: ipPool.Spec.IPVersion,
-			Vlan:    *ipPool.Spec.Vlan,
-		}*/
-	return &models.IPConfig{}
+	var gateway string
+	if ipPool.Spec.Gateway != nil {
+		gateway = *ipPool.Spec.Gateway
+	}
+
+	return &models.IPConfig{
+		Address: &address,
+		Gateway: gateway,
+		IPPool:  ipPool.Name,
+		Nic:     &nic,
+		Version: ipPool.Spec.IPVersion,
+	}
+
 }
 
 func UnmarshalIPPoolAllocatedIPs(data *string) (inspuripamv1.PoolIPAllocations, error) {

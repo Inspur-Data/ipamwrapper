@@ -94,12 +94,12 @@ func ParseConfiguration() error {
 func LoadConfigmap() error {
 	configmapBytes, err := os.ReadFile(ConfigInstance.ConfigPath)
 	if nil != err {
-		return logging.Errorf("failed to read configmap file, error: %v", err)
+		//return logging.Errorf("failed to read configmap file, error: %v", err)
 	}
 
 	err = yaml.Unmarshal(configmapBytes, &ConfigInstance)
 	if nil != err {
-		return logging.Errorf("failed to parse configmap, error: %v", err)
+		//return logging.Errorf("failed to parse configmap, error: %v", err)
 	}
 
 	if ConfigInstance.IpamUnixSocketPath == "" {
