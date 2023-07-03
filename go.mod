@@ -17,8 +17,7 @@ require (
 	github.com/onsi/gomega v1.27.7
 	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.10.0
-	gopkg.in/yaml.v3 v3.0.
-        go.uber.org/atomic v1.7.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
@@ -65,7 +64,8 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	go.mongodb.org/mongo-driver v1.11.3 // indirect
+        go.uber.org/atomic v1.7.0
+        go.mongodb.org/mongo-driver v1.11.3 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
