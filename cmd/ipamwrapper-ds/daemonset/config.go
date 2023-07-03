@@ -57,6 +57,10 @@ type Config struct {
 	NetworkMode        string `yaml:"networkMode"`
 	EnableIPv4         bool   `yaml:"enableIPv4"`
 	EnableIPv6         bool   `yaml:"enableIPv6"`
+
+	//reserved ips 1.2.3.4-1.2.3.6
+	IPv4ReservedIPs []string `yaml:"ipv4ReservedIPs"`
+	IPv6ReservedIPs []string `yaml:"ipv6ReservedIPs"`
 }
 
 var ConfigInstance = Config{

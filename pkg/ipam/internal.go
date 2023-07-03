@@ -317,7 +317,7 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 	//todo concurrent allocate !!!!!
 	var result []*types.AllocationResult
 	for name, v4ippool := range v4IppoolsMap {
-		ip, err := i.ippoolManager.AllocateIP(ctx, v4ippool, nic, pod)
+		ip, err := i.ippoolManager.AllocateIP(ctx, v4ippool, nic, pod, i.config.IPv4ReservedIP, i.config.IPv6ReservedIP)
 		if err != nil {
 			logging.Errorf("allocate from ipool:%s failed:%v", name, err)
 			continue

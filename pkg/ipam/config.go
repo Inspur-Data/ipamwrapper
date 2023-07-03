@@ -13,4 +13,6 @@ type IPAMConfig struct {
 
 	OperationRetries     int
 	OperationGapDuration time.Duration
+	IPv4ReservedIP       []string
+	IPv6ReservedIP       []string
 }

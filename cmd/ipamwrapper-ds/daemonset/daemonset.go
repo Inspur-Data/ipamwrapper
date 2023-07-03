@@ -29,6 +29,8 @@ func Daemon() {
 			ClusterDefaultIPv6IPPool: ipamAgent.Cfg.ClusterDefaultIPv6IPPool,
 			OperationRetries:         ipamAgent.Cfg.WaitSubnetPoolMaxRetries,
 			OperationGapDuration:     time.Duration(ipamAgent.Cfg.WaitSubnetPoolTime) * time.Second,
+			IPv4ReservedIP:           ipamAgent.Cfg.IPv4ReservedIPs,
+			IPv6ReservedIP:           ipamAgent.Cfg.IPv6ReservedIPs,
 		},
 		ipamAgent.PodMgr,
 		ipamAgent.EndpointMgr,
@@ -36,7 +38,7 @@ func Daemon() {
 		ipamAgent.NSMgr,
 	)
 	ipamAgent.IPAM = ipam
-
+	ipamAgent.Cfg = ConfigInstance
 	go func() {
 		err := mgr.Start(ipamAgent.InnerCtx)
 		if err != nil {

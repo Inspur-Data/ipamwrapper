@@ -28,7 +28,7 @@ const defaultMaxAllocatedIPs = 1024
 type IPPoolManager interface {
 	GetIPPoolByName(ctx context.Context, poolName string, cached bool) (*inspuripamv1.IPPool, error)
 	ListIPPools(ctx context.Context, cached bool, opts ...client.ListOption) (*inspuripamv1.IPPoolList, error)
-	AllocateIP(ctx context.Context, pool *inspuripamv1.IPPool, nic string, pod *corev1.Pod) (*models.IPConfig, error)
+	AllocateIP(ctx context.Context, pool *inspuripamv1.IPPool, nic string, pod *corev1.Pod, ipv4ReservedIPs []string, ipv6ReservedIPs []string) (*models.IPConfig, error)
 	ReleaseIP(ctx context.Context, poolName string, ipAndUIDs []types.IPAndUID) error
 	UpdateAllocatedIPs(ctx context.Context, poolName string, ipAndCIDs []types.IPAndUID) error
 }
@@ -94,21 +94,14 @@ func (im *ipPoolManager) ListIPPools(ctx context.Context, cached bool, opts ...c
 	return &ipPoolList, nil
 }
 
-func (im *ipPoolManager) AllocateIP(ctx context.Context, ipPool *inspuripamv1.IPPool, nic string, pod *corev1.Pod) (*models.IPConfig, error) {
+func (im *ipPoolManager) AllocateIP(ctx context.Context, ipPool *inspuripamv1.IPPool, nic string, pod *corev1.Pod, ipv4ReservedIPs []string, ipv6ReservedIPs []string) (*models.IPConfig, error) {
 
 	backoff := retry.DefaultRetry
 	//steps := backoff.Steps
 	var ipConfig *models.IPConfig
 	err := retry.RetryOnConflictWithContext(ctx, backoff, func(ctx context.Context) error {
-		logging.Debugf("retry  ip allocation")
-		/*
-			ipPool, err := im.GetIPPoolByName(ctx, poolName, constant.IgnoreCache)
-			if err != nil {
-				return err
-			}*/
-
 		logging.Debugf("generate a random IP address")
-		allocatedIP, err := im.genRandomIP(ctx, nic, ipPool, pod)
+		allocatedIP, err := im.genRandomIP(ctx, nic, ipPool, pod, ipv4ReservedIPs, ipv6ReservedIPs)
 		if err != nil {
 			return err
 		}
@@ -133,14 +126,21 @@ func (im *ipPoolManager) AllocateIP(ctx context.Context, ipPool *inspuripamv1.IP
 	return ipConfig, nil
 }
 
-func (im *ipPoolManager) genRandomIP(ctx context.Context, nic string, ipPool *inspuripamv1.IPPool, pod *corev1.Pod) (net.IP, error) {
-	//todo exclude the reserverd ips
-	/*
-		reservedIPs, err := im.rIPManager.AssembleReservedIPs(ctx, *ipPool.Spec.IPVersion)
-		if err != nil {
-			return nil, err
-		}*/
+func (im *ipPoolManager) genRandomIP(ctx context.Context, nic string, ipPool *inspuripamv1.IPPool, pod *corev1.Pod, ipv4ReservedIPs []string, ipv6ReservedIPs []string) (net.IP, error) {
 	var reservedIPs []net.IP
+	var err error
+	if *ipPool.Spec.IPVersion == constant.IPv4 {
+		reservedIPs, err = ipamip.ParseIPRanges(constant.IPv4, ipv4ReservedIPs)
+		if err != nil {
+			logging.Errorf("parse ip range failed:%v", err)
+		}
+	}
+	if *ipPool.Spec.IPVersion == constant.IPv6 {
+		reservedIPs, err = ipamip.ParseIPRanges(constant.IPv6, ipv6ReservedIPs)
+		if err != nil {
+			logging.Errorf("parse ip range failed:%v", err)
+		}
+	}
 	allocatedRecords, err := convert.UnmarshalIPPoolAllocatedIPs(ipPool.Status.AllocatedIPs)
 	if err != nil {
 		return nil, err
