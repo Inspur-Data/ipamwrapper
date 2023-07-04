@@ -140,6 +140,7 @@ func (i *ipam) allocateIps(ctx context.Context, addArgs *models.IpamAllocArgs, p
 		}*/
 
 	if err = i.endpointManager.PatchIPAllocationResults(ctx, res, endpoint, pod, podCtl); err != nil {
+		//todo ippool status rollback
 		return nil, fmt.Errorf("failed to patch IP allocation results to Endpoint: %v", err)
 	}
 
@@ -148,7 +149,7 @@ func (i *ipam) allocateIps(ctx context.Context, addArgs *models.IpamAllocArgs, p
 		Ips:    resIPs,
 		Routes: resRoutes,
 	}
-	logging.Debugf("allocate ip success: %v", addResp)
+	logging.Debugf("allocate ip success: %v", *addResp)
 
 	return addResp, nil
 }

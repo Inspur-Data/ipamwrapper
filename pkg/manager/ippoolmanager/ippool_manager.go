@@ -31,6 +31,7 @@ type IPPoolManager interface {
 	AllocateIP(ctx context.Context, pool *inspuripamv1.IPPool, nic string, pod *corev1.Pod, ipv4ReservedIPs []string, ipv6ReservedIPs []string) (*models.IPConfig, error)
 	ReleaseIP(ctx context.Context, poolName string, ipAndUIDs []types.IPAndUID) error
 	UpdateAllocatedIPs(ctx context.Context, poolName string, ipAndCIDs []types.IPAndUID) error
+	UpdateIPPoolStatus(ctx context.Context, ipPool *inspuripamv1.IPPool) error
 }
 
 type ipPoolManager struct {
@@ -256,7 +257,18 @@ func (im *ipPoolManager) ReleaseIP(ctx context.Context, poolName string, ipAndUI
 
 	return nil
 }
+func (im *ipPoolManager) UpdateIPPoolStatus(ctx context.Context, ipPool *inspuripamv1.IPPool) error {
+	if err := im.client.Status().Update(ctx, ipPool); err != nil {
+		if apierrors.IsConflict(err) {
+			//todo add metircs
+			//metric.IpamAllocationUpdateIPPoolConflictCounts.Add(ctx, 1)
+			logging.Errorf("update ippool failed:%v", err)
+		}
+		return err
+	}
 
+	return nil
+}
 func (im *ipPoolManager) UpdateAllocatedIPs(ctx context.Context, poolName string, ipAndUIDs []types.IPAndUID) error {
 	backoff := retry.DefaultRetry
 	//steps := backoff.Steps

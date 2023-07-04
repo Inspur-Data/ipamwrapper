@@ -109,6 +109,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 			return res, nil
 		}
 	}
+	//allocate ip in the normal mod
 	res, err := i.allocateIps(ctx, addArgs, pod, ed, owner)
 	if err != nil {
 		logging.Errorf("allocate ip failed:%v", err)
@@ -119,6 +120,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 
 // Delete release the ip with the given param
 func (i *ipam) Delete(ctx context.Context, delArgs *models.IpamDelArgs) error {
+
 	return nil
 }
 

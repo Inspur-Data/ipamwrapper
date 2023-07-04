@@ -165,7 +165,6 @@ func (em *endpointManager) UpdateEndpoint(ctx context.Context, uid, nodeName str
 		return logging.Errorf("endpoint is nil")
 	}
 
-	//todo add UID check
 	if endpoint.Status.UID == uid {
 		return nil
 	}
@@ -173,7 +172,7 @@ func (em *endpointManager) UpdateEndpoint(ctx context.Context, uid, nodeName str
 	endpoint.Status.UID = uid
 	endpoint.Status.Node = nodeName
 
-	return em.client.Update(ctx, endpoint)
+	return em.client.Status().Update(ctx, endpoint)
 }
 
 // GetEndpointIP will return the ips about the endpoint

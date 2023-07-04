@@ -22,7 +22,7 @@ type unixPostIpStruct struct{}
 
 // Handle implement the logic about allocate ip,path: /ipam
 func (g *unixPostIpStruct) Handle(params IPAMServerAgent.PostIpamParams) middleware.Responder {
-	logging.Debugf("Enter post handle function,the ipamAllocParams is: %v", params.IpamAllocArgs)
+	logging.Debugf("Enter post handle function,the ipamAllocParams is: %v", *params.IpamAllocArgs)
 	if err := params.IpamAllocArgs.Validate(strfmt.Default); err != nil {
 		logging.Errorf("post param is invalid: %v", params)
 		return IPAMServerAgent.NewPostIpamFailure().WithPayload(models.Error(err.Error()))
@@ -49,6 +49,5 @@ func (g *unixDeleteIpStruct) Handle(params IPAMServerAgent.DeleteIpamParams) mid
 	}
 
 	//todo 实现释放IP的具体逻辑
-
 	return IPAMServerAgent.NewDeleteIpamOK()
 }

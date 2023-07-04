@@ -31,6 +31,8 @@ func Daemon() {
 			OperationGapDuration:     time.Duration(ipamAgent.Cfg.WaitSubnetPoolTime) * time.Second,
 			IPv4ReservedIP:           ipamAgent.Cfg.IPv4ReservedIPs,
 			IPv6ReservedIP:           ipamAgent.Cfg.IPv6ReservedIPs,
+			EnableSpiderSubnet:       true,
+			EnableStatefulSet:        true,
 		},
 		ipamAgent.PodMgr,
 		ipamAgent.EndpointMgr,
