@@ -49,5 +49,11 @@ func (g *unixDeleteIpStruct) Handle(params IPAMServerAgent.DeleteIpamParams) mid
 	}
 
 	//todo 实现释放IP的具体逻辑
+	ctx := params.HTTPRequest.Context()
+	err := ipamAgent.IPAM.Delete(ctx, params.IpamDelArgs)
+	if err != nil {
+		logging.Errorf("delete IP failed:%v", err)
+		return IPAMServerAgent.NewDeleteIpamFailure().WithPayload(models.Error(err.Error()))
+	}
 	return IPAMServerAgent.NewDeleteIpamOK()
 }

@@ -124,11 +124,14 @@ definitions:
         type: string
       podName:
         type: string
+      podUID:
+        type: string
     required:
       - containerID
       - ifName
       - podNamespace
       - podName
+      - podUID
   DNS:
     description: ipamwrapper DNS
     type: object

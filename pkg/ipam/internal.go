@@ -7,6 +7,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	corev1 "k8s.io/api/core/v1"
@@ -333,4 +334,90 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 	}
 
 	return result, nil
+}
+
+func (i *ipam) releaseIP(ctx context.Context, uid, nic string, endpoint *inspuripamv1.IPAMEndpoint) error {
+
+	// judge whether an sts needs to release its currently allocated IP addresses.
+	if i.config.EnableStatefulSet && endpoint.Status.TopOwner == constant.KindStatefulSet {
+		valid, err := i.stsManager.IsValidStsPod(ctx, endpoint.Namespace, endpoint.Name, endpoint.Status.TopOwner)
+		if nil != err {
+			return fmt.Errorf("failed to check pod %s/%s whether is a valid StatefulSet pod: %v", endpoint.Namespace, endpoint.Name, err)
+		}
+
+		if valid {
+			logging.Errorf("no need to release the pod ip")
+			return nil
+		}
+
+	}
+
+	//delete ipam endpoint
+	if err := i.endpointManager.DeleteEndpoint(ctx, endpoint); err != nil {
+		logging.Errorf("delete endpoint failed:%v", err)
+		return err
+	}
+
+	allocation := endpointmanager.GetEndpointIP(uid, nic, endpoint, false)
+	if allocation == nil {
+		logging.Debugf("this endpoint cant hanve ip allocation ")
+		return nil
+	}
+
+	logging.Debugf("release IP allocation details: %+v", allocation.IPs)
+	if err := i.release(ctx, allocation.UID, allocation.IPs); err != nil {
+		return err
+	}
+
+	if err := i.endpointManager.RemoveFinalizer(ctx, endpoint); err != nil {
+		return fmt.Errorf("failed to clean Endpoint: %v", err)
+	}
+
+	return nil
+}
+
+func (i *ipam) release(ctx context.Context, uid string, details []inspuripamv1.IPAllocationDetail) error {
+	//group the ip allocation detail to map. key is ippool name,value is IP and UID
+	detailGroups := convert.GroupIPAllocationDetails(uid, details)
+	//todo add metrics
+	/*
+			tickets := pius.Pools()
+			timeRecorder := metric.NewTimeRecorder()
+			if err := i.ipamLimiter.AcquireTicket(ctx, tickets...); err != nil {
+				return fmt.Errorf("failed to queue correctly: %v", err)
+			}
+			defer i.ipamLimiter.ReleaseTicket(ctx, tickets...)
+
+		// Record the metric of queuing time for release.
+		metric.IPAMDurationConstruct.RecordIPAMReleaseLimitDuration(ctx, timeRecorder.SinceInSeconds())
+	*/
+	errCh := make(chan error, len(detailGroups))
+	wg := sync.WaitGroup{}
+	wg.Add(len(detailGroups))
+
+	for p, detail := range detailGroups {
+		go func(poolName string, ipAndUIDs []types.IPAndUID) {
+			defer wg.Done()
+
+			if err := i.ippoolManager.ReleaseIP(ctx, poolName, ipAndUIDs); err != nil {
+				logging.Errorf("release ip failed:%v", err)
+				errCh <- err
+				return
+			}
+			logging.Debugf("release IP successful ippool name:%s,ip:+%v", poolName, ipAndUIDs)
+		}(p, detail)
+	}
+	wg.Wait()
+	close(errCh)
+
+	var errs []error
+	for err := range errCh {
+		errs = append(errs, err)
+	}
+
+	if len(errs) != 0 {
+		return logging.Errorf("failed to release all allocated IP addresses %+v", detailGroups)
+	}
+
+	return nil
 }

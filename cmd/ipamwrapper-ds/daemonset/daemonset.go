@@ -38,6 +38,7 @@ func Daemon() {
 		ipamAgent.EndpointMgr,
 		ipamAgent.IPPoolMgr,
 		ipamAgent.NSMgr,
+		ipamAgent.StsMgr,
 	)
 	ipamAgent.IPAM = ipam
 	ipamAgent.Cfg = ConfigInstance

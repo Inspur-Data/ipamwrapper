@@ -37,6 +37,10 @@ type IpamDelArgs struct {
 	// pod namespace
 	// Required: true
 	PodNamespace *string `json:"podNamespace"`
+
+	// pod UID
+	// Required: true
+	PodUID *string `json:"podUID"`
 }
 
 // Validate validates this ipam del args
@@ -56,6 +60,10 @@ func (m *IpamDelArgs) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePodNamespace(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePodUID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,6 +103,15 @@ func (m *IpamDelArgs) validatePodName(formats strfmt.Registry) error {
 func (m *IpamDelArgs) validatePodNamespace(formats strfmt.Registry) error {
 
 	if err := validate.Required("podNamespace", "body", m.PodNamespace); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *IpamDelArgs) validatePodUID(formats strfmt.Registry) error {
+
+	if err := validate.Required("podUID", "body", m.PodUID); err != nil {
 		return err
 	}
 

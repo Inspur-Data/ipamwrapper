@@ -71,6 +71,9 @@ type IPAMEndpointStatus struct {
 
 	// +kubebuilder:validation:Optional
 	Node string `json:"node,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	TopOwner string `json:"topOwner,omitempty"`
 }
 
 //+kubebuilder:object:root=true

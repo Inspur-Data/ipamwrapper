@@ -204,7 +204,7 @@ func (im *ipPoolManager) ReleaseIP(ctx context.Context, poolName string, ipAndUI
 	backoff := retry.DefaultRetry
 	//steps := backoff.Steps
 	err := retry.RetryOnConflictWithContext(ctx, backoff, func(ctx context.Context) error {
-		logging.Debugf(" IPPool for IP release")
+		logging.Debugf("release IP in the ippool:%s", poolName)
 		ipPool, err := im.GetIPPoolByName(ctx, poolName, constant.IgnoreCache)
 		if err != nil {
 			return err

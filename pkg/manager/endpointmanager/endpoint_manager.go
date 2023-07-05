@@ -137,9 +137,10 @@ func (em *endpointManager) PatchIPAllocationResults(ctx context.Context, results
 
 		//update the endpoint's status
 		endpoint.Status = inspuripamv1.IPAMEndpointStatus{
-			IPs:  convert.ConvertResultsToIPDetails(results),
-			UID:  string(pod.UID),
-			Node: pod.Spec.NodeName,
+			IPs:      convert.ConvertResultsToIPDetails(results),
+			UID:      string(pod.UID),
+			Node:     pod.Spec.NodeName,
+			TopOwner: podController.Kind,
 		}
 		err = em.client.Status().Update(ctx, endpoint)
 		if err != nil {

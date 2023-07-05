@@ -9,6 +9,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
 	"go.uber.org/atomic"
 	"net/http"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -29,7 +30,7 @@ type IPAMAgent struct {
 	EndpointMgr endpointmanager.EndpointManager
 	NSMgr       nsmanager.NsManager
 	PodMgr      podmanager.PodManager
-
+	StsMgr      stsmanager.StatefulSetManager
 	// handler
 	HttpServer        *restapi.Server
 	UnixServer        *restapi.Server

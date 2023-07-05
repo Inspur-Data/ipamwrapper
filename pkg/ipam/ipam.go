@@ -12,9 +12,11 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
-
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
 	appsv1 "k8s.io/api/apps/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"time"
 )
 
 type IPAM interface {
@@ -29,13 +31,15 @@ type ipam struct {
 	endpointManager endpointmanager.EndpointManager
 	ippoolManager   ippoolmanager.IPPoolManager
 	nsManager       nsmanager.NsManager
+	stsManager      stsmanager.StatefulSetManager
 }
 
 // NewIPAM init a new IPAM instance
 func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
 	endpointMgr endpointmanager.EndpointManager,
 	ippoolMgr ippoolmanager.IPPoolManager,
-	nsMgr nsmanager.NsManager) (IPAM, error) {
+	nsMgr nsmanager.NsManager,
+	stsMgr stsmanager.StatefulSetManager) (IPAM, error) {
 	if podMgr == nil {
 		return nil, logging.Errorf("podManager is nil")
 	}
@@ -51,12 +55,18 @@ func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
 	if nsMgr == nil {
 		return nil, logging.Errorf("nsManager is nil")
 	}
+
+	if stsMgr == nil {
+		return nil, logging.Errorf("stsManager is nil")
+	}
+
 	return &ipam{
 		podManager:      podMgr,
 		config:          config,
 		endpointManager: endpointMgr,
 		ippoolManager:   ippoolMgr,
 		nsManager:       nsMgr,
+		stsManager:      stsMgr,
 	}, nil
 }
 
@@ -120,7 +130,53 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 
 // Delete release the ip with the given param
 func (i *ipam) Delete(ctx context.Context, delArgs *models.IpamDelArgs) error {
+	pod, err := i.podManager.GetPodByName(ctx, *delArgs.PodNamespace, *delArgs.PodName, true)
+	if err != nil {
+		logging.Errorf("get pod failed:%v", err)
+		return err
+	}
 
+	//check is the pod alive
+	alive := podmanager.IsPodAlive(pod)
+	if !alive {
+		logging.Errorf("pod %s/%s is still alive", pod.Namespace, pod.Name)
+		return nil
+	}
+
+	//set timeout
+
+	var timeout int64
+	if pod != nil && pod.DeletionGracePeriodSeconds != nil {
+		if *pod.DeletionGracePeriodSeconds != 0 {
+			timeout = *pod.DeletionGracePeriodSeconds
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+			defer cancel()
+		}
+	}
+
+	//get endpoint
+	ed, err := i.endpointManager.GetEndpointByName(ctx, *delArgs.PodNamespace, *delArgs.PodName, false)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			logging.Errorf("can not find the endpoint:%s/%s", *delArgs.PodNamespace, *delArgs.PodName)
+			return nil
+		}
+		return logging.Errorf("find ipam endpoint failed :%v", err)
+	}
+
+	if ed != nil {
+		logging.Debugf("get endpoint %s/%s", pod.Namespace, pod.Name)
+	} else {
+		logging.Errorf("find no endpoint")
+	}
+
+	//release ip
+	err = i.releaseIP(ctx, *delArgs.PodUID, *delArgs.IfName, ed)
+	if err != nil {
+		logging.Errorf("release ip failed:%+v", err)
+		return err
+	}
 	return nil
 }
 

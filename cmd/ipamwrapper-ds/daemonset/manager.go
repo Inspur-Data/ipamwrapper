@@ -7,6 +7,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -88,4 +89,13 @@ func initManager() {
 	}
 	ipamAgent.IPPoolMgr = ipPoolManager
 
+	logging.Debugf("init stsfulset manager ")
+	stsManager, err := stsmanager.NewStatefulSetManager(
+		ipamAgent.Mgr.GetClient(),
+		ipamAgent.Mgr.GetAPIReader(),
+	)
+	if err != nil {
+		logging.Panicf("init ippool manager failed: %v", err)
+	}
+	ipamAgent.StsMgr = stsManager
 }
