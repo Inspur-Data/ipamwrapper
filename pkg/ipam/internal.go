@@ -158,13 +158,14 @@ func (i *ipam) allocateIps(ctx context.Context, addArgs *models.IpamAllocArgs, p
 // getCandidatePool will return the ippool candidate after a series of filter
 func (i *ipam) getCandidatePool(ctx context.Context, addArgs *models.IpamAllocArgs, pod *corev1.Pod, podController types.PodTopController) (*types.AnnoPodIPPoolValue, error) {
 	//todo subnet has the highest order
+
 	//get ippool from annotation "ipam.inspur.io/ippool"
 	if anno, ok := pod.Annotations[constant.AnnoPodIPPool]; ok {
 		return getCandidatePoolFromAnno(anno, *addArgs.IfName, true)
 	}
 
 	// get ippool from namespace annotations
-	// "ipam.spidernet.io/defaultv4ippool" and "ipam.spidernet.io/defaultv6ippool".
+	// "ipam.inspur.io/defaultv4ippool" and "ipam.inspur.io/defaultv6ippool".
 	ippools, err := i.getNsDefaultIPPool(ctx, pod.Namespace, *addArgs.IfName, true)
 	if err == nil && ippools != nil {
 		return ippools, nil
@@ -173,6 +174,7 @@ func (i *ipam) getCandidatePool(ctx context.Context, addArgs *models.IpamAllocAr
 	}
 
 	//todo add default ippools in the add args
+
 	//get the default ippool from netconf
 	ippools, err = i.getDefaultIPPoolFromNetconf(ctx, *addArgs.IfName, nil, nil, true)
 	if err == nil && ippools != nil {
@@ -274,8 +276,8 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 		return nil, logging.Errorf("ipv6 enabled but ipv6 ipools is nil")
 	}
 
-	v4IppoolsMap := make(map[string]*inspuripamv1.IPPool)
-	v6IppoolsMap := make(map[string]*inspuripamv1.IPPool)
+	IppoolsMap := make(map[string]*inspuripamv1.IPPool)
+
 	for _, v4pool := range ippools.IPv4Pools {
 		ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v4pool, false)
 		if err != nil {
@@ -291,7 +293,7 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 				logging.Errorf("ippool:%s is not ipv4", v4pool)
 				continue
 			}
-			v4IppoolsMap[v4pool] = ippool
+			IppoolsMap[v4pool] = ippool
 		}
 	}
 
@@ -306,11 +308,11 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 				continue
 			}
 
-			if *ippool.Spec.IPVersion != constant.IPv4 {
-				logging.Errorf("ippool:%s is not ipv4", v6pool)
+			if *ippool.Spec.IPVersion != constant.IPv6 {
+				logging.Errorf("ippool:%s is not ipv6", v6pool)
 				continue
 			}
-			v6IppoolsMap[v6pool] = ippool
+			IppoolsMap[v6pool] = ippool
 		}
 	}
 
@@ -318,19 +320,25 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 
 	//todo concurrent allocate !!!!!
 	var result []*types.AllocationResult
-	for name, v4ippool := range v4IppoolsMap {
-		ip, err := i.ippoolManager.AllocateIP(ctx, v4ippool, nic, pod, i.config.IPv4ReservedIP, i.config.IPv6ReservedIP)
+	var errs []error
+	for name, ippool := range IppoolsMap {
+		ip, err := i.ippoolManager.AllocateIP(ctx, ippool, nic, pod, i.config.IPv4ReservedIP, i.config.IPv6ReservedIP)
 		if err != nil {
 			logging.Errorf("allocate from ipool:%s failed:%v", name, err)
+			errs = append(errs, err)
 			continue
 		}
 		res := &types.AllocationResult{
 			IP:           ip,
-			Routes:       convert.ConvertSpecRoutesToOAIRoutes(nic, v4ippool.Spec.Routes),
+			Routes:       convert.ConvertSpecRoutesToOAIRoutes(nic, ippool.Spec.Routes),
 			CleanGateway: cleanGateway,
 		}
 		result = append(result, res)
 		break
+	}
+
+	if len(errs) == len(IppoolsMap) {
+		return nil, logging.Errorf("allocate ip from all ippools failed")
 	}
 
 	return result, nil

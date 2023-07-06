@@ -50,4 +50,5 @@ const (
 	AnnoPodDNS          = Pre + "/dns"
 	AnnoNSDefautlV4Pool = Pre + "/default-ipv4-ippool"
 	AnnoNSDefautlV6Pool = Pre + "/default-ipv6-ippool"
+	AnnoNSDefautlPool   = Pre + "/default-ippool"
 )
