@@ -8,6 +8,7 @@ package models
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -138,4 +139,8 @@ func (m *IPConfig) UnmarshalBinary(b []byte) error {
 	}
 	*m = res
 	return nil
+}
+
+func (m *IPConfig) String() string  {
+	return fmt.Sprintf("{address: %v,gateway: %v,ipPool: %v,nic: %v,version: %v,vlan: %v}",*m.Address,m.Gateway,m.IPPool,*m.Nic,*m.Version,m.Vlan)
 }

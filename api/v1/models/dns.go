@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -56,4 +57,8 @@ func (m *DNS) UnmarshalBinary(b []byte) error {
 	}
 	*m = res
 	return nil
+}
+
+func (m *DNS) String() string {
+	return fmt.Sprintf("{domain: %v,nameservers: %v,options: %v,search: %v}", m.Domain, m.Nameservers, m.Options, m.Search)
 }

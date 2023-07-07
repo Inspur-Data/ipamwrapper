@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -139,4 +140,8 @@ func (m *IpamAllocArgs) UnmarshalBinary(b []byte) error {
 	}
 	*m = res
 	return nil
+}
+
+func (m *IpamAllocArgs) String() string{
+	return fmt.Sprintf("",*m.IfName,m.Ipam,*m.PodName,*m.PodNamespace,*m.NetNamespace,*m.ContainerID)
 }

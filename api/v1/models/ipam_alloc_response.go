@@ -7,6 +7,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -219,4 +220,8 @@ func (m *IpamAllocResponse) UnmarshalBinary(b []byte) error {
 	}
 	*m = res
 	return nil
+}
+
+func (m *IpamAllocResponse) String() string{
+	return fmt.Sprintf("{dns: %v, ips: %v,routes: %v}",m.DNS,m.Ips,m.Routes)
 }
