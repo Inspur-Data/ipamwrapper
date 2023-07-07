@@ -5,6 +5,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nodemanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
@@ -98,4 +99,14 @@ func initManager() {
 		logging.Panicf("init ippool manager failed: %v", err)
 	}
 	ipamAgent.StsMgr = stsManager
+
+	logging.Debugf("init node manager ")
+	nodeManager, err := nodemanager.NewNodeManager(
+		ipamAgent.Mgr.GetClient(),
+		ipamAgent.Mgr.GetAPIReader(),
+	)
+	if err != nil {
+		logging.Panicf("init ippool manager failed: %v", err)
+	}
+	ipamAgent.NodeMgr = nodeManager
 }

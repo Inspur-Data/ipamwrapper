@@ -10,6 +10,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nodemanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
@@ -32,6 +33,7 @@ type ipam struct {
 	ippoolManager   ippoolmanager.IPPoolManager
 	nsManager       nsmanager.NsManager
 	stsManager      stsmanager.StatefulSetManager
+	nodeManager     nodemanager.NodeManager
 }
 
 // NewIPAM init a new IPAM instance
@@ -39,7 +41,8 @@ func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
 	endpointMgr endpointmanager.EndpointManager,
 	ippoolMgr ippoolmanager.IPPoolManager,
 	nsMgr nsmanager.NsManager,
-	stsMgr stsmanager.StatefulSetManager) (IPAM, error) {
+	stsMgr stsmanager.StatefulSetManager,
+	nodeMgr nodemanager.NodeManager) (IPAM, error) {
 	if podMgr == nil {
 		return nil, logging.Errorf("podManager is nil")
 	}
@@ -60,6 +63,10 @@ func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
 		return nil, logging.Errorf("stsManager is nil")
 	}
 
+	if nodeMgr == nil {
+		return nil, logging.Errorf("nodeMgr is nil")
+	}
+
 	return &ipam{
 		podManager:      podMgr,
 		config:          config,
@@ -67,6 +74,7 @@ func NewIPAM(config IPAMConfig, podMgr podmanager.PodManager,
 		ippoolManager:   ippoolMgr,
 		nsManager:       nsMgr,
 		stsManager:      stsMgr,
+		nodeManager:     nodeMgr,
 	}, nil
 }
 

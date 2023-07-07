@@ -11,6 +11,8 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sync"
 )
@@ -169,8 +171,6 @@ func (i *ipam) getCandidatePool(ctx context.Context, addArgs *models.IpamAllocAr
 	ippools, err := i.getNsDefaultIPPool(ctx, pod.Namespace, *addArgs.IfName, true)
 	if err == nil && ippools != nil {
 		return ippools, nil
-	} else {
-		logging.Errorf("get ns default ippool failed:%v", err)
 	}
 
 	//todo add default ippools in the add args
@@ -179,8 +179,6 @@ func (i *ipam) getCandidatePool(ctx context.Context, addArgs *models.IpamAllocAr
 	ippools, err = i.getDefaultIPPoolFromNetconf(ctx, *addArgs.IfName, nil, nil, true)
 	if err == nil && ippools != nil {
 		return ippools, nil
-	} else {
-		logging.Errorf("get default ippool from netconf failed:%v", err)
 	}
 
 	//get the default ippool
@@ -317,6 +315,47 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 	}
 
 	//todo Nodeaffinity namespace affinity
+	for poolname, pool := range IppoolsMap {
+		//node affinity
+		if pool.Spec.NodeAffinity != nil {
+			node, err := i.nodeManager.GetNodeByName(ctx, pod.Spec.NodeName, constant.UseCache)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NodeAffinity)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			if !selector.Matches(labels.Set(node.Labels)) {
+				logging.Errorf("unmatched node affinity of IPPool %s", poolname)
+				delete(IppoolsMap, poolname)
+			}
+		}
+
+		//namespace affinity
+		if pool.Spec.NamespaceAffinity != nil {
+			namespace, err := i.nsManager.GetNamespace(ctx, pod.Namespace, constant.UseCache)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NamespaceAffinity)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			if !selector.Matches(labels.Set(namespace.Labels)) {
+				logging.Errorf("unmatched namespace affinity of IPPool %s", poolname)
+				delete(IppoolsMap, poolname)
+			}
+		}
+	}
+
+	if len(IppoolsMap) == 0 {
+		return nil, logging.Errorf("all ippool candidate are invalid")
+	}
 
 	//todo concurrent allocate !!!!!
 	var result []*types.AllocationResult

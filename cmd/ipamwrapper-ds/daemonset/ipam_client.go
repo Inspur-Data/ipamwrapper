@@ -7,6 +7,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/ipam"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/endpointmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/ippoolmanager"
+	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nodemanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/nsmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/podmanager"
 	"github.com/Inspur-Data/ipamwrapper/pkg/manager/stsmanager"
@@ -31,6 +32,7 @@ type IPAMAgent struct {
 	NSMgr       nsmanager.NsManager
 	PodMgr      podmanager.PodManager
 	StsMgr      stsmanager.StatefulSetManager
+	NodeMgr     nodemanager.NodeManager
 	// handler
 	HttpServer        *restapi.Server
 	UnixServer        *restapi.Server
