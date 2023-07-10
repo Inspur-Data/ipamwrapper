@@ -14,7 +14,7 @@ const (
 	NetworkLegacy             = "legacy"
 	NetworkStrict             = "strict"
 	NetworkSDN                = "sdn"
-	DefaultIPAMUnixSocketPath = "/var/run/inspur/k8ipam.sock"
+	DefaultIPAMUnixSocketPath = "/var/run/inspur/ipamwrapper.sock"
 )
 
 const (
