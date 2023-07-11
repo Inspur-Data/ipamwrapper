@@ -19,9 +19,15 @@ func ParseConfig(args []byte) (*CNIConf, error) {
 	if CniConfig.IPAM.LogFile != "" {
 		logging.SetLogFile(CniConfig.IPAM.LogFile)
 	}
+	/*else {
+		logging.SetLogFile("/var/log/ipamwrapper.log")
+	}*/
+
 	if CniConfig.IPAM.LogLevel != "" {
 		logging.SetLogLevel(CniConfig.IPAM.LogLevel)
-	}
+	} /*else {
+		logging.SetLogLevel("debug")
+	}*/
 
 	if CniConfig.IPAM == nil {
 		return nil, logging.Errorf("IPAM config is nil")

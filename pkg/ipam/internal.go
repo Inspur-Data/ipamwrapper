@@ -206,7 +206,7 @@ func (i *ipam) getNsDefaultIPPool(ctx context.Context, namespace, nic string, cl
 	}
 
 	if len(nsDefaultV4Pools) == 0 && len(nsDefaultV6Pools) == 0 {
-		logging.Errorf("ipv4 and ipv6 ippool is nil")
+		logging.Warningf("ipv4 and ipv6 ippool is nil in the namespace default scene")
 		return nil, nil
 	}
 
@@ -219,7 +219,7 @@ func (i *ipam) getNsDefaultIPPool(ctx context.Context, namespace, nic string, cl
 // getDefaultIPPoolFromNetconf get the ippool from args
 func (i *ipam) getDefaultIPPoolFromNetconf(ctx context.Context, nic string, defaultIPv4Pool, defaultIPv6Pool []string, cleanGateway bool) (*types.AnnoPodIPPoolValue, error) {
 	if len(defaultIPv4Pool) == 0 && len(defaultIPv6Pool) == 0 {
-		logging.Errorf("ipv4 and ipv6 ippool is nil")
+		logging.Warningf("ipv4 and ipv6 ippool is nil in the netconf scene")
 		return nil, nil
 	}
 	ippools := types.AnnoPodIPPoolValue{}
@@ -408,7 +408,7 @@ func (i *ipam) releaseIP(ctx context.Context, uid, nic string, endpoint *inspuri
 
 	allocation := endpointmanager.GetEndpointIP(uid, nic, endpoint, false)
 	if allocation == nil {
-		logging.Debugf("this endpoint cant hanve ip allocation ")
+		logging.Debugf("this endpoint dose not have ip allocation ")
 		return nil
 	}
 

@@ -28,6 +28,7 @@ type Level uint32
 const (
 	PanicLevel Level = iota
 	ErrorLevel
+	WarningLevel
 	VerboseLevel
 	DebugLevel
 	MaxLevel
@@ -50,6 +51,8 @@ func (l Level) String() string {
 		return "error"
 	case DebugLevel:
 		return "debug"
+	case WarningLevel:
+		return "warning"
 	}
 	return "unknown"
 }
@@ -93,6 +96,12 @@ func Errorf(format string, a ...interface{}) error {
 	return fmt.Errorf(format, a...)
 }
 
+// Warningf defines our printf for error level.
+func Warningf(format string, a ...interface{}) error {
+	Printf(WarningLevel, format, a...)
+	return fmt.Errorf(format, a...)
+}
+
 // Panicf defines our printf for panic level.
 func Panicf(format string, a ...interface{}) {
 	Printf(PanicLevel, format, a...)
@@ -116,6 +125,8 @@ func getLoggingLevel(levelStr string) Level {
 		return ErrorLevel
 	case "panic":
 		return PanicLevel
+	case "warning":
+		return WarningLevel
 	}
 	fmt.Fprintf(os.Stderr, "IPAM logging: cannot set logging level to %s\n", levelStr)
 	return UnknownLevel

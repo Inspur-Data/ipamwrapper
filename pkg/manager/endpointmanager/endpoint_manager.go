@@ -178,17 +178,19 @@ func (em *endpointManager) UpdateEndpoint(ctx context.Context, uid, nodeName str
 
 // GetEndpointIP will return the ips about the endpoint
 func GetEndpointIP(uid, nic string, endpoint *inspuripamv1.IPAMEndpoint, isSTS bool) *inspuripamv1.IPAMEndpointStatus {
+	logging.Debugf("status.UID:%s", endpoint.Status.UID)
+	logging.Debugf("param UID:%s", uid)
 	if endpoint == nil {
 		return nil
 	}
 
-	if endpoint.Status.UID == uid || isSTS {
-		for _, d := range endpoint.Status.IPs {
-			if *d.NIC == nic {
-				return &endpoint.Status
-			}
+	//if endpoint.Status.UID == uid || isSTS {
+	for _, d := range endpoint.Status.IPs {
+		if *d.NIC == nic {
+			return &endpoint.Status
 		}
 	}
+	//}
 
 	return nil
 }

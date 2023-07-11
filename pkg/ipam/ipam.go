@@ -102,7 +102,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 	if ed != nil {
 		logging.Debugf("get endpoint %s/%s", pod.Namespace, pod.Name)
 	} else {
-		logging.Errorf("find no endpoint")
+		logging.Warningf("find no endpoint")
 	}
 
 	if i.config.EnableStatefulSet && owner.APIVersion == appsv1.SchemeGroupVersion.String() && owner.Kind == constant.KindStatefulSet {
@@ -117,7 +117,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 			return res, nil
 		}
 	} else {
-		logging.Debugf("reuse the existing IP")
+		logging.Debugf("try to reuse the existing IP")
 		res, err := i.reuseExistingIP(ctx, string(pod.UID), *addArgs.IfName, ed)
 		if err != nil {
 			logging.Errorf("reuse exist ip failed:%v", err)
@@ -138,6 +138,7 @@ func (i *ipam) Allocate(ctx context.Context, addArgs *models.IpamAllocArgs) (*mo
 
 // Delete release the ip with the given param
 func (i *ipam) Delete(ctx context.Context, delArgs *models.IpamDelArgs) error {
+	logging.Debugf("IPAM delete args:%+v", delArgs)
 	pod, err := i.podManager.GetPodByName(ctx, *delArgs.PodNamespace, *delArgs.PodName, true)
 	if err != nil {
 		logging.Errorf("get pod failed:%v", err)
@@ -146,7 +147,7 @@ func (i *ipam) Delete(ctx context.Context, delArgs *models.IpamDelArgs) error {
 
 	//check is the pod alive
 	alive := podmanager.IsPodAlive(pod)
-	if !alive {
+	if alive {
 		logging.Errorf("pod %s/%s is still alive", pod.Namespace, pod.Name)
 		return nil
 	}

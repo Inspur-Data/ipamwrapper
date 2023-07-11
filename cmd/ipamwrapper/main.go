@@ -98,7 +98,7 @@ func cmdAdd(args *skel.CmdArgs) error {
 }
 
 func cmdDel(args *skel.CmdArgs) error {
-	logging.Debugf("enter cmdDel function")
+
 	cniConfig, err := config.ParseConfig(args.StdinData)
 	if err != nil {
 		return logging.Errorf("ParseConfig failed")
@@ -126,11 +126,12 @@ func cmdDel(args *skel.CmdArgs) error {
 		NetNamespace: args.Netns,
 		PodName:      (*string)(&podArgs.K8S_POD_NAME),
 		PodNamespace: (*string)(&podArgs.K8S_POD_NAMESPACE),
+		PodUID:       (*string)(&podArgs.K8S_POD_UID),
 	})
 
 	_, err = unixAgentAPI.IpamwrapperAgent.DeleteIpam(param)
 	if nil != err {
-		logging.Errorf("delete ip failed:%v", err)
+		logging.Errorf(" delete ip failed:%v", err)
 		return err
 	}
 
