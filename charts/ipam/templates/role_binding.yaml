@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ipamwrapper-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ipamwrapper-admin
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.ipamwrapperAgent.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+- kind: ServiceAccount
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+{{- if or .Values.feature.enableIPv4 .Values.feature.enableIPv6 }}
+{{- if or .Values.clusterDefaultPool.installIPv4IPPool .Values.clusterDefaultPool.installIPv6IPPool }}
+{{- if .Values.ipamwrapperInit.serviceAccount.create }}
+- kind: ServiceAccount
+  name: {{ .Values.ipamwrapperInit.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,702 @@
+# Default values for ipamwrapper.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## @section Global parameters
+##
+global:
+  ## @param global.imageRegistryOverride Global Docker image registry
+  imageRegistryOverride: ""
+
+  ## @param global.nameOverride instance name
+  ## default ipamwrapper
+  nameOverride: ""
+
+  ## @param global.clusterDnsDomain cluster dns domain
+  clusterDnsDomain: "cluster.local"
+
+  ## @param global.commonAnnotations Annotations to add to all deployed objects
+  commonAnnotations: {}
+
+  ## @param global.commonLabels Labels to add to all deployed objects
+  commonLabels: {}
+  #  label1: v1
+  #  labele: v2
+
+  ## @param global.ipamBinHostPath the host path of the IPAM plugin directory.
+  ipamBinHostPath: /opt/cni/bin
+
+  ## @param global.ipamUNIXSocketHostPath the host path of unix domain socket for ipam plugin
+  ipamUNIXSocketHostPath: /var/run/inspur/ipamwrapper.sock
+
+  ## @param global.configName the configmap name
+  configName: "ipamwrapper-conf"
+
+## @section feature parameters
+feature:
+  ## @param feature.enableIPv4 enable ipv4
+  enableIPv4: true
+
+  ## @param feature.enableIPv6 enable ipv6
+  enableIPv6: false
+
+  ## @param feature.networkMode the network mode
+  networkMode: legacy
+
+  ## @param feature.enableStatefulSet the network mode
+  enableStatefulSet: true
+
+  ## @param feature.enableSpiderSubnet SpiderSubnet feature gate.
+  enableSpiderSubnet: true
+
+  gc:
+    ## @param feature.gc.enabled enable retrieve IP in spiderippool CR
+    enabled: true
+
+    gcAll:
+      ## @param feature.gc.gcAll.intervalInSecond the gc all interval duration
+      intervalInSecond: 600
+
+    GcDeletingTimeOutPod:
+      ## @param feature.gc.GcDeletingTimeOutPod.enabled enable retrieve IP for the pod who times out of deleting graceful period
+      enabled: true
+
+      ## @param feature.gc.GcDeletingTimeOutPod.delay the gc delay seconds after the pod times out of deleting graceful period
+      delay: 0
+
+## @section clusterDefaultPool parameters
+##
+clusterDefaultPool:
+  ## @param clusterDefaultPool.installIPv4IPPool install ipv4 ipamwrapper instance. It is required to set feature.enableIPv4=true
+  installIPv4IPPool: false
+
+  ## @param clusterDefaultPool.installIPv6IPPool install ipv6 ipamwrapper instance. It is required to set feature.enableIPv6=true
+  installIPv6IPPool: false
+
+  ## @param clusterDefaultPool.ipv4IPPoolName the name of ipv4 ipamwrapper instance
+  ipv4IPPoolName: "default-v4-ippool"
+
+  ## @param clusterDefaultPool.ipv6IPPoolName the name of ipv6 ipamwrapper instance
+  ipv6IPPoolName: "default-v6-ippool"
+
+  ## @param clusterDefaultPool.ipv4SubnetName the name of ipv4 spidersubnet instance
+  ipv4SubnetName: "default-v4-subnet"
+
+  ## @param clusterDefaultPool.ipv6SubnetName the name of ipv6 spidersubnet instance
+  ipv6SubnetName: "default-v6-subnet"
+
+  ## @param clusterDefaultPool.ipv4Subnet the subnet of ipv4 ipamwrapper instance
+  ipv4Subnet: ""
+
+  ## @param clusterDefaultPool.ipv6Subnet the subnet of ipv6 ipamwrapper instance
+  ipv6Subnet: ""
+
+  ## @param clusterDefaultPool.ipv4IPRanges the available IP of ipv4 ipamwrapper instance
+  ipv4IPRanges: []
+
+  ## @param clusterDefaultPool.ipv6IPRanges the available IP of ipv6 ipamwrapper instance
+  ipv6IPRanges: []
+
+  ## @param clusterDefaultPool.ipv4Gateway the gateway of ipv4 subnet
+  ipv4Gateway: ""
+
+  ## @param clusterDefaultPool.ipv6Gateway the gateway of ipv6 subnet
+  ipv6Gateway: ""
+
+## @section ipamwrapperAgent parameters
+##
+ipamwrapperAgent:
+  ## @param ipamwrapperAgent.name the ipamwrapperAgent name
+  name: "ipamwrapper"
+
+  ## @param ipamwrapperAgent.binName the binName name of ipamwrapperAgent
+  binName: "ipamwrapper"
+
+  image:
+    ## @param ipamwrapperAgent.image.registry the image registry of ipamwrapperAgent
+    registry: ghcr.io
+
+    ## @param ipamwrapperAgent.image.repository the image repository of ipamwrapperAgent
+    repository: inspurwyd/ipamwrapper
+
+    ## @param ipamwrapperAgent.image.pullPolicy the image pullPolicy of ipamwrapperAgent
+    pullPolicy: IfNotPresent
+
+    ## @param ipamwrapperAgent.image.digest the image digest of ipamwrapperAgent, which takes preference over tag
+    digest: ""
+
+    ## @param ipamwrapperAgent.image.tag the image tag of ipamwrapperAgent, overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+    ## @param ipamwrapperAgent.image.imagePullSecrets the image imagePullSecrets of ipamwrapperAgent
+    imagePullSecrets: []
+    # - name: "image-pull-secret"
+
+  ## @skip ipamwrapperAgent.nodeSelector.kubernetes.io/os
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  serviceAccount:
+    ## @param ipamwrapperAgent.serviceAccount.create create the service account for the ipamwrapperAgent
+    create: true
+    ## @param ipamwrapperAgent.serviceAccount.annotations the annotations of ipamwrapperAgent service account
+    annotations: {}
+
+  ## @skip ipamwrapperAgent.updateStrategy.rollingUpdate.maxUnavailable
+  ## @skip ipamwrapperAgent.updateStrategy.type
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 2
+    type: RollingUpdate
+
+  service:
+    ## @param ipamwrapperAgent.service.annotations the annotations for ipamwrapperAgent service
+    annotations: {}
+    ## @param ipamwrapperAgent.service.type the type for ipamwrapperAgent service
+    type: ClusterIP
+
+  ## @skip ipamwrapperAgent.tolerations
+  # --  Node tolerations
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/disk-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/pid-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/unschedulable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/network-unavailable
+      operator: Exists
+    - key: node.kubernetes.io/not-ready
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+    - key: CriticalAddonsOnly
+      operator: Exists
+
+  ## @param ipamwrapperAgent.priorityClassName the priority Class Name for ipamwrapperAgent
+  priorityClassName: "system-node-critical"
+
+  ## @param ipamwrapperAgent.affinity the affinity of ipamwrapperAgent
+  affinity: {}
+
+  ## @param ipamwrapperAgent.extraArgs the additional arguments of ipamwrapperAgent container
+  extraArgs: []
+
+  ## @param ipamwrapperAgent.extraEnv the additional environment variables of ipamwrapperAgent container
+  extraEnv: []
+
+  ## @param ipamwrapperAgent.extraVolumes the additional volumes of ipamwrapperAgent container
+  extraVolumes: []
+
+  ## @param ipamwrapperAgent.extraVolumeMounts the additional hostPath mounts of ipamwrapperAgent container
+  extraVolumeMounts: []
+
+  ## @param ipamwrapperAgent.podAnnotations the additional annotations of ipamwrapperAgent pod
+  podAnnotations: {}
+
+  ## @param ipamwrapperAgent.podLabels the additional label of ipamwrapperAgent pod
+  podLabels: {}
+
+  resources:
+    limits:
+      ## @param ipamwrapperAgent.resources.limits.cpu the cpu limit of ipamwrapperAgent pod
+      cpu: 1000m
+      ## @param ipamwrapperAgent.resources.limits.memory the memory limit of ipamwrapperAgent pod
+      memory: 1024Mi
+    requests:
+      ## @param ipamwrapperAgent.resources.requests.cpu the cpu requests of ipamwrapperAgent pod
+      cpu: 100m
+      ## @param ipamwrapperAgent.resources.requests.memory the memory requests of ipamwrapperAgent pod
+      memory: 128Mi
+
+  ## @param ipamwrapperAgent.securityContext the security Context of ipamwrapperAgent pod
+  securityContext: {}
+  # runAsUser: 0
+
+  ## @param ipamwrapperAgent.httpPort the http Port for ipamwrapperAgent, for health checking
+  httpPort: 5710
+
+  healthChecking:
+    startupProbe:
+      ## @param ipamwrapperAgent.healthChecking.startupProbe.failureThreshold the failure threshold of startup probe for ipamwrapperAgent health checking
+      failureThreshold: 60
+      ## @param ipamwrapperAgent.healthChecking.startupProbe.periodSeconds the period seconds of startup probe for ipamwrapperAgent health checking
+      periodSeconds: 2
+
+    livenessProbe:
+      ## @param ipamwrapperAgent.healthChecking.livenessProbe.failureThreshold the failure threshold of startup probe for ipamwrapperAgent health checking
+      failureThreshold: 6
+      ## @param ipamwrapperAgent.healthChecking.livenessProbe.periodSeconds the period seconds of startup probe for ipamwrapperAgent health checking
+      periodSeconds: 10
+
+    readinessProbe:
+      ## @param ipamwrapperAgent.healthChecking.readinessProbe.failureThreshold the failure threshold of startup probe for ipamwrapperAgent health checking
+      failureThreshold: 3
+      ## @param ipamwrapperAgent.healthChecking.readinessProbe.periodSeconds the period seconds of startup probe for ipamwrapperAgent health checking
+      periodSeconds: 10
+
+  prometheus:
+    ## @param ipamwrapperAgent.prometheus.enabled enable ipamwrapper agent to collect metrics
+    enabled: false
+
+    ## @param ipamwrapperAgent.prometheus.port the metrics port of ipamwrapper agent
+    port: 5711
+
+    serviceMonitor:
+      ## @param ipamwrapperAgent.prometheus.serviceMonitor.install install serviceMonitor for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperAgent.prometheus.serviceMonitor.namespace the serviceMonitor namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperAgent.prometheus.serviceMonitor.annotations the additional annotations of ipamwrapperAgent serviceMonitor
+      annotations: {}
+
+      ## @param ipamwrapperAgent.prometheus.serviceMonitor.labels the additional label of ipamwrapperAgent serviceMonitor
+      labels: {}
+
+      ## @param ipamwrapperAgent.prometheus.serviceMonitor.interval represents the interval of ipamwrapperAgent serviceMonitor's scraping action
+      interval: "10s"
+
+    prometheusRule:
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.install install prometheusRule for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.namespace the prometheusRule namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.annotations the additional annotations of ipamwrapperAgent prometheusRule
+      annotations: {}
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.labels the additional label of ipamwrapperAgent prometheusRule
+      labels: {}
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.enableWarningIPAMAllocationFailure the additional rule of ipamwrapperAgent prometheusRule
+      enableWarningIPAMAllocationFailure: true
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.enableWarningIPAMAllocationOverTime the additional rule of ipamwrapperAgent prometheusRule
+      enableWarningIPAMAllocationOverTime: true
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.enableWarningIPAMHighAllocationDurations the additional rule of ipamwrapperAgent prometheusRule
+      enableWarningIPAMHighAllocationDurations: true
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.enableWarningIPAMReleaseFailure the additional rule of ipamwrapperAgent prometheusRule
+      enableWarningIPAMReleaseFailure: true
+
+      ## @param ipamwrapperAgent.prometheus.prometheusRule.enableWarningIPAMReleaseOverTime the additional rule of ipamwrapperAgent prometheusRule
+      enableWarningIPAMReleaseOverTime: true
+
+    grafanaDashboard:
+      ## @param ipamwrapperAgent.prometheus.grafanaDashboard.install install grafanaDashboard for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperAgent.prometheus.grafanaDashboard.namespace the grafanaDashboard namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperAgent.prometheus.grafanaDashboard.annotations the additional annotations of ipamwrapperAgent grafanaDashboard
+      annotations: {}
+
+      ## @param ipamwrapperAgent.prometheus.grafanaDashboard.labels the additional label of ipamwrapperAgent grafanaDashboard
+      labels: {}
+
+  debug:
+    ## @param ipamwrapperAgent.debug.logLevel the log level of ipamwrapper agent [debug, info, warn, error, fatal, panic]
+    logLevel: "info"
+    ## @param ipamwrapperAgent.debug.gopsPort the gops port of ipamwrapper agent
+    gopsPort: 5712
+
+## @section ipamwrapperController parameters
+##
+ipamwrapperController:
+  ## @param ipamwrapperController.name the ipamwrapperController name
+  name: "ipamwrapper-controller"
+
+  ## @param ipamwrapperController.replicas the replicas number of ipamwrapperController pod
+  replicas: 1
+
+  ## @param ipamwrapperController.binName the binName name of ipamwrapperController
+  binName: "ipamwrapper-controller"
+
+  ## @param ipamwrapperController.hostnetwork enable hostnetwork mode of ipamwrapperController pod. Notice, if no CNI available before ipamwrapper installation, must enable this
+  hostnetwork: true
+
+  image:
+    ## @param ipamwrapperController.image.registry the image registry of ipamwrapperController
+    registry: ghcr.io
+
+    ## @param ipamwrapperController.image.repository the image repository of ipamwrapperController
+    repository: spidernet-io/ipamwrapper/ipamwrapper-controller
+
+    ## @param ipamwrapperController.image.pullPolicy the image pullPolicy of ipamwrapperController
+    pullPolicy: IfNotPresent
+
+    ## @param ipamwrapperController.image.digest the image digest of ipamwrapperController, which takes preference over tag
+    digest: ""
+
+    ## @param ipamwrapperController.image.tag the image tag of ipamwrapperController, overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+    ## @param ipamwrapperController.image.imagePullSecrets the image imagePullSecrets of ipamwrapperController
+    imagePullSecrets: []
+    # - name: "image-pull-secret"
+
+  ## @skip ipamwrapperController.nodeSelector.kubernetes.io/os
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  serviceAccount:
+    ## @param ipamwrapperController.serviceAccount.create create the service account for the ipamwrapperController
+    create: true
+    ## @param ipamwrapperController.serviceAccount.annotations the annotations of ipamwrapperController service account
+    annotations: {}
+
+  service:
+    ## @param ipamwrapperController.service.annotations the annotations for ipamwrapperController service
+    annotations: {}
+    ## @param ipamwrapperController.service.type the type for ipamwrapperController service
+    type: ClusterIP
+
+  ## @skip ipamwrapperController.tolerations
+  tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/disk-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/pid-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/unschedulable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/network-unavailable
+      operator: Exists
+    - key: node.kubernetes.io/not-ready
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+    - key: CriticalAddonsOnly
+      operator: Exists
+
+  ## @param ipamwrapperController.priorityClassName the priority Class Name for ipamwrapperController
+  priorityClassName: "system-node-critical"
+
+  ## @param ipamwrapperController.affinity the affinity of ipamwrapperController
+  affinity: {}
+
+  ## @param ipamwrapperController.extraArgs the additional arguments of ipamwrapperController container
+  extraArgs: []
+
+  ## @param ipamwrapperController.extraEnv the additional environment variables of ipamwrapperController container
+  extraEnv: []
+
+  ## @param ipamwrapperController.extraVolumes the additional volumes of ipamwrapperController container
+  extraVolumes: []
+    # - name: test-val
+    #   mountPath: /host/tmp
+
+  ## @param ipamwrapperController.extraVolumeMounts the additional hostPath mounts of ipamwrapperController container
+  extraVolumeMounts: []
+    # - name: test-val
+    #   mountPath: /tmp
+
+  ## @param ipamwrapperController.podAnnotations the additional annotations of ipamwrapperController pod
+  podAnnotations: {}
+    # test: 100
+
+  ## @param ipamwrapperController.podLabels the additional label of ipamwrapperController pod
+  podLabels: {}
+
+  ## @param ipamwrapperController.securityContext the security Context of ipamwrapperController pod
+  securityContext: {}
+  # runAsUser: 0
+
+  resources:
+    limits:
+      ## @param ipamwrapperController.resources.limits.cpu the cpu limit of ipamwrapperController pod
+      cpu: 500m
+      ## @param ipamwrapperController.resources.limits.memory the memory limit of ipamwrapperController pod
+      memory: 1024Mi
+    requests:
+      ## @param ipamwrapperController.resources.requests.cpu the cpu requests of ipamwrapperController pod
+      cpu: 100m
+      ## @param ipamwrapperController.resources.requests.memory the memory requests of ipamwrapperController pod
+      memory: 128Mi
+
+  podDisruptionBudget:
+    ## @param ipamwrapperController.podDisruptionBudget.enabled enable podDisruptionBudget for ipamwrapperController pod
+    enabled: false
+
+    ## @param ipamwrapperController.podDisruptionBudget.minAvailable minimum number/percentage of pods that should remain scheduled.
+    minAvailable: 1
+
+  ## @param ipamwrapperController.httpPort the http Port for ipamwrapperController, for health checking and http service
+  httpPort: 5720
+
+  healthChecking:
+    startupProbe:
+      ## @param ipamwrapperController.healthChecking.startupProbe.failureThreshold the failure threshold of startup probe for ipamwrapperController health checking
+      failureThreshold: 30
+
+      ## @param ipamwrapperController.healthChecking.startupProbe.periodSeconds the period seconds of startup probe for ipamwrapperController health checking
+      periodSeconds: 2
+
+    livenessProbe:
+      ## @param ipamwrapperController.healthChecking.livenessProbe.failureThreshold the failure threshold of startup probe for ipamwrapperController health checking
+      failureThreshold: 6
+
+      ## @param ipamwrapperController.healthChecking.livenessProbe.periodSeconds the period seconds of startup probe for ipamwrapperController health checking
+      periodSeconds: 10
+
+    readinessProbe:
+      ## @param ipamwrapperController.healthChecking.readinessProbe.failureThreshold the failure threshold of startup probe for ipamwrapperController health checking
+      failureThreshold: 3
+
+      ## @param ipamwrapperController.healthChecking.readinessProbe.periodSeconds the period seconds of startup probe for ipamwrapperController health checking
+      periodSeconds: 10
+
+  ## @param ipamwrapperController.webhookPort the http port for ipamwrapperController webhook
+  webhookPort: 5722
+
+  prometheus:
+    ## @param ipamwrapperController.prometheus.enabled enable ipamwrapper Controller to collect metrics
+    enabled: false
+
+    ## @param ipamwrapperController.prometheus.port the metrics port of ipamwrapper Controller
+    port: 5721
+
+    serviceMonitor:
+      ## @param ipamwrapperController.prometheus.serviceMonitor.install install serviceMonitor for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperController.prometheus.serviceMonitor.namespace the serviceMonitor namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperController.prometheus.serviceMonitor.annotations the additional annotations of ipamwrapperController serviceMonitor
+      annotations: {}
+
+      ## @param ipamwrapperController.prometheus.serviceMonitor.labels the additional label of ipamwrapperController serviceMonitor
+      labels: {}
+
+      ## @param ipamwrapperController.prometheus.serviceMonitor.interval represents the interval of ipamwrapperController serviceMonitor's scraping action
+      interval: "10s"
+
+    prometheusRule:
+      ## @param ipamwrapperController.prometheus.prometheusRule.install install prometheusRule for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperController.prometheus.prometheusRule.namespace the prometheusRule namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperController.prometheus.prometheusRule.annotations the additional annotations of ipamwrapperController prometheusRule
+      annotations: {}
+
+      ## @param ipamwrapperController.prometheus.prometheusRule.labels the additional label of ipamwrapperController prometheusRule
+      labels: {}
+
+      ## @param ipamwrapperController.prometheus.prometheusRule.enableWarningIPGCFailureCounts the additional rule of ipamwrapperController prometheusRule
+      enableWarningIPGCFailureCounts: true
+
+    grafanaDashboard:
+      ## @param ipamwrapperController.prometheus.grafanaDashboard.install install grafanaDashboard for ipamwrapper agent. This requires the prometheus CRDs to be available
+      install: false
+
+      ## @param ipamwrapperController.prometheus.grafanaDashboard.namespace the grafanaDashboard namespace. Default to the namespace of helm instance
+      namespace: ""
+
+      ## @param ipamwrapperController.prometheus.grafanaDashboard.annotations the additional annotations of ipamwrapperController grafanaDashboard
+      annotations: {}
+
+      ## @param ipamwrapperController.prometheus.grafanaDashboard.labels the additional label of ipamwrapperController grafanaDashboard
+      labels: {}
+
+  debug:
+    ## @param ipamwrapperController.debug.logLevel the log level of ipamwrapper Controller [debug, info, warn, error, fatal, panic]
+    logLevel: "info"
+
+    ## @param ipamwrapperController.debug.gopsPort the gops port of ipamwrapper Controller
+    gopsPort: 5724
+
+  ## TLS configuration for webhook
+  tls:
+    ## @param ipamwrapperController.tls.method the method for generating TLS certificates. [ provided , certmanager , auto]
+    ## - provided:     provide all certificates by helm options
+    ## - certmanager:  This method use cert-manager to generate & rotate certificates.
+    ## - auto:         Auto generate cert.
+    method: auto
+
+    ## @param ipamwrapperController.tls.secretName the secret name for storing TLS certificates
+    secretName: "ipamwrapper-controller-server-certs"
+
+    ## for certmanager method
+    certmanager:
+      ## @param ipamwrapperController.tls.certmanager.certValidityDuration generated certificates validity duration in days for 'certmanager' method
+      certValidityDuration: 365
+
+      ## @param ipamwrapperController.tls.certmanager.issuerName issuer name of cert manager 'certmanager'. If not specified, a CA issuer will be created.
+      issuerName: ""
+
+      ## @param ipamwrapperController.tls.certmanager.extraDnsNames extra DNS names added to certificate when it's auto generated
+      extraDnsNames: []
+
+      ## @param ipamwrapperController.tls.certmanager.extraIPAddresses extra IP addresses added to certificate when it's auto generated
+      extraIPAddresses: []
+
+    ## for provided method
+    provided:
+      ## @param ipamwrapperController.tls.provided.tlsCert encoded tls certificate for provided method
+      ## @param ipamwrapperController.tls.provided.tlsKey encoded tls key for provided method
+      ## @param ipamwrapperController.tls.provided.tlsCa encoded tls CA for provided method
+      tlsCert: ""
+      tlsKey: ""
+      tlsCa: ""
+
+    ## for auto method
+    auto:
+      ## @param ipamwrapperController.tls.auto.caExpiration ca expiration for auto method
+      # in day , default 200 years
+      caExpiration: '73000'
+
+      ## @param ipamwrapperController.tls.auto.certExpiration server cert expiration for auto method
+      # in day, default 200 years
+      certExpiration: '73000'
+
+      ## @param ipamwrapperController.tls.auto.extraIpAddresses extra IP addresses of server certificate for auto method
+      extraIpAddresses: []
+
+      ## @param ipamwrapperController.tls.auto.extraDnsNames extra DNS names of server cert for auto method
+      extraDnsNames: []
+
+## @section ipamwrapperInit parameters
+##
+ipamwrapperInit:
+  ## @param ipamwrapperInit.name the init job for installing default spiderippool
+  name: "ipamwrapper-init"
+
+  ## @param ipamwrapperInit.binName the binName name of ipamwrapperInit
+  binName: "ipamwrapper-init"
+
+  ## @param ipamwrapperInit.hostnetwork enable hostnetwork mode of ipamwrapperInit pod. Notice, if no CNI available before ipamwrapper installation, must enable this
+  hostnetwork: true
+
+  image:
+    ## @param ipamwrapperInit.image.registry the image registry of ipamwrapperInit
+    registry: ghcr.io
+
+    ## @param ipamwrapperInit.image.repository the image repository of ipamwrapperInit
+    repository: spidernet-io/ipamwrapper/ipamwrapper-controller
+
+    ## @param ipamwrapperInit.image.pullPolicy the image pullPolicy of ipamwrapperInit
+    pullPolicy: IfNotPresent
+
+    ## @param ipamwrapperInit.image.digest the image digest of ipamwrapperInit, which takes preference over tag
+    digest: ""
+
+    ## @param ipamwrapperInit.image.tag the image tag of ipamwrapperInit, overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+    ## @param ipamwrapperInit.image.imagePullSecrets the image imagePullSecrets of ipamwrapperInit
+    imagePullSecrets: []
+    # - name: "image-pull-secret"
+
+  ## @param ipamwrapperInit.priorityClassName the priority Class Name for ipamwrapperInit
+  priorityClassName: "system-node-critical"
+
+  ## @skip ipamwrapperInit.tolerations
+  tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/disk-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/pid-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/unschedulable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/network-unavailable
+      operator: Exists
+    - key: node.kubernetes.io/not-ready
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+    - key: CriticalAddonsOnly
+      operator: Exists
+
+  ## @skip ipamwrapperInit.nodeSelector.kubernetes.io/os
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  ## @param ipamwrapperInit.affinity the affinity of ipamwrapperInit
+  affinity: {}
+
+  ## @param ipamwrapperInit.extraArgs the additional arguments of ipamwrapperInit container
+  extraArgs: []
+
+  resources:
+    limits:
+      ## @param ipamwrapperInit.resources.limits.cpu the cpu limit of ipamwrapperInit pod
+      cpu: 200m
+      ## @param ipamwrapperInit.resources.limits.memory the memory limit of ipamwrapperInit pod
+      memory: 256Mi
+    requests:
+      ## @param ipamwrapperInit.resources.requests.cpu the cpu requests of ipamwrapperInit pod
+      cpu: 100m
+      ## @param ipamwrapperInit.resources.requests.memory the memory requests of ipamwrapperInit pod
+      memory: 128Mi
+
+  ## @param ipamwrapperInit.extraEnv the additional environment variables of ipamwrapperInit container
+  extraEnv: []
+
+  ## @param ipamwrapperInit.securityContext the security Context of ipamwrapperInit pod
+  securityContext: {}
+  # runAsUser: 0
+
+  ## @param ipamwrapperInit.podAnnotations the additional annotations of ipamwrapperInit pod
+  podAnnotations: {}
+
+  ## @param ipamwrapperInit.podLabels the additional label of ipamwrapperInit pod
+  podLabels: {}
+
+  serviceAccount:
+    ## @param ipamwrapperInit.serviceAccount.create create the service account for the ipamwrapperInit
+    create: true
+    ## @param ipamwrapperInit.serviceAccount.annotations the annotations of ipamwrapperInit service account
+    annotations: {}
