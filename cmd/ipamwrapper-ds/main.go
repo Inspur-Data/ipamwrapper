@@ -10,6 +10,17 @@ func main() {
 	//init resource
 	daemonset.Daemon()
 	logging.Debugf("http server will start.....")
+	//start the health_check httpserver
+	healthSrv, err := daemonset.NewIPAMHealthHttpServer()
+	if err == nil && healthSrv != nil {
+		go func() {
+			er := healthSrv.Serve()
+			if err != nil {
+				logging.Errorf("health check server start fialed:%v", er)
+			}
+		}()
+	}
+
 	srv, err := daemonset.NewAgentOpenAPIUnixServer()
 	//srv, err := daemonset.NewIPAMHttpServer()
 	if err != nil {

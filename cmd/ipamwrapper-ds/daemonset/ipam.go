@@ -5,6 +5,7 @@ package daemonset
 
 import (
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	HealthCheckAgent "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/health_check"
 	IPAMServerAgent "github.com/Inspur-Data/ipamwrapper/api/v1/server/restapi/operations/ipamwrapper_agent"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/go-openapi/runtime/middleware"
@@ -13,9 +14,9 @@ import (
 
 // constant
 var (
-	unixPostIp = &unixPostIpStruct{}
-
-	unixDeleteIp = &unixDeleteIpStruct{}
+	unixPostIp      = &unixPostIpStruct{}
+	unixDeleteIp    = &unixDeleteIpStruct{}
+	unixHealthCheck = &unixHealthCheckStruct{}
 )
 
 type unixPostIpStruct struct{}
@@ -56,4 +57,16 @@ func (g *unixDeleteIpStruct) Handle(params IPAMServerAgent.DeleteIpamParams) mid
 		return IPAMServerAgent.NewDeleteIpamFailure().WithPayload(models.Error(err.Error()))
 	}
 	return IPAMServerAgent.NewDeleteIpamOK()
+}
+
+type unixHealthCheckStruct struct{}
+
+func (g *unixHealthCheckStruct) Handle(params HealthCheckAgent.GetHealthyParams) middleware.Responder {
+
+	/*_, err := ipamAgent.httpClient.HealthCheck.GetHealthy(HealthCheckClient.NewGetHealthyParams())
+	if err != nil {
+		logging.Errorf("health check failed:%+v", err)
+		return HealthCheckAgent.NewGetHealthyInternalServerError()
+	}*/
+	return HealthCheckAgent.NewGetHealthyOK()
 }

@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	HttpPort       = "5555"
-	UnixSocketPath = "/var/run/inspur/ipamwrapper.sock"
-	ConfigPath     = "/tmp/ipamwrapper/config-map/conf.yml"
+	HttpPort        = "5555"
+	HealthCheckPort = "5050"
+	UnixSocketPath  = "/var/run/inspur/ipamwrapper.sock"
+	ConfigPath      = "/tmp/ipamwrapper/config-map/conf.yml"
 )
 
 type envConf struct {
@@ -45,6 +46,7 @@ type Config struct {
 	HttpPort                 string `yaml:"httpPort"`
 	MetricHttpPort           string
 	GopsListenPort           string
+	HealthHttpPort           string `yaml:"healthHttpPort"`
 	PyroscopeAddress         string
 	ClusterDefaultIPv4IPPool []string `yaml:"clusterDefaultIPv4IPPool"`
 	ClusterDefaultIPv6IPPool []string `yaml:"clusterDefaultIPv6IPPool"`
@@ -67,6 +69,7 @@ var ConfigInstance = Config{
 	HttpPort:           HttpPort,
 	IpamUnixSocketPath: UnixSocketPath,
 	ConfigPath:         ConfigPath,
+	HealthHttpPort:     HealthCheckPort,
 }
 
 // ParseConfiguration set the env to AgentConfiguration

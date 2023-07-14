@@ -49,4 +49,11 @@ func Daemon() {
 			logging.Errorf("manager start failed:%v", err)
 		}
 	}()
+
+	//init http client
+	httpClient, err := NewAgentOpenAPIHttpClient("localhost:" + ipamAgent.Cfg.HealthHttpPort)
+	if nil != err {
+		logging.Errorf("failed to create agent client: %v", err)
+	}
+	ipamAgent.httpClient = httpClient
 }

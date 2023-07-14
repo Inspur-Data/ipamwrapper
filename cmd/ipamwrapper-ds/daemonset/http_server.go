@@ -44,3 +44,33 @@ func NewIPAMHttpServer() (*IPAMRestapi.Server, error) {
 
 	return srv, nil
 }
+func NewIPAMHealthHttpServer() (*IPAMRestapi.Server, error) {
+	// read yaml spec
+	swaggerSpec, err := loads.Embedded(IPAMRestapi.SwaggerJSON, IPAMRestapi.FlatSwaggerJSON)
+	if nil != err {
+		return nil, err
+	}
+
+	// create new service API
+	api := IPAMOperation.NewIpamwrapperAgentAPIAPI(swaggerSpec)
+
+	// set runtime Handler
+	api.HealthCheckGetHealthyHandler = unixHealthCheck
+	// new agent OpenAPI server with api
+	srv := IPAMRestapi.NewServer(api)
+
+	// k8ipam daemonset owns Unix server and Http server, the Unix server uses for interaction, and the Http server uses for K8s or CLI command.
+	// In config file openapi.yaml, we already set x-schemes with value 'unix', so we need set Http server's listener with value 'http'.
+	srv.EnabledListeners = IPAMClient.DefaultSchemes
+	//todo port need to set
+	port, err := strconv.Atoi(ConfigInstance.HealthHttpPort)
+	if nil != err {
+		return nil, err
+	}
+	srv.Port = port
+
+	// configure API and handlers with some default values.
+	srv.ConfigureAPI()
+
+	return srv, nil
+}

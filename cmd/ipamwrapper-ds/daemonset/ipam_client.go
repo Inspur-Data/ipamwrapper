@@ -40,6 +40,7 @@ type IPAMAgent struct {
 
 	// client
 	unixClient *client.IpamwrapperAgentAPI
+	httpClient *client.IpamwrapperAgentAPI
 
 	// probe
 	IsStartupProbe atomic.Bool
