@@ -143,15 +143,15 @@ spec:
                 - {{ .Values.ipamwrapperAgent.binName }}
                 - shutdown
         env:
-        - name: ipamwrapper_LOG_LEVEL
+        - name: IPAMWRAPPER_LOG_LEVEL
           value: {{ .Values.ipamwrapperAgent.debug.logLevel | quote }}
-        - name: ipamwrapper_ENABLED_METRIC
+        - name: IPAMWRAPPER_ENABLED_METRIC
           value: {{ .Values.ipamwrapperAgent.prometheus.enabled | quote }}
-        - name: ipamwrapper_METRIC_HTTP_PORT
+        - name: IPAMWRAPPER_METRIC_HTTP_PORT
           value: {{ .Values.ipamwrapperAgent.prometheus.port | quote }}
-        - name: ipamwrapper_HEALTH_PORT
+        - name: IPAMWRAPPER_HEALTH_PORT
           value: {{ .Values.ipamwrapperAgent.httpPort | quote }}
-        - name: ipamwrapper_GOPS_LISTEN_PORT
+        - name: IPAMWRAPPER_GOPS_LISTEN_PORT
           value: {{ .Values.ipamwrapperAgent.debug.gopsPort | quote }}
         {{- with .Values.ipamwrapperAgent.extraEnv }}
         {{- toYaml . | nindent 8 }}

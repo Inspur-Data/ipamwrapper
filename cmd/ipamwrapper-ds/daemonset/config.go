@@ -13,7 +13,7 @@ import (
 const (
 	HttpPort       = "5555"
 	UnixSocketPath = "/var/run/inspur/ipamwrapper.sock"
-	ConfigPath     = "/tmp/inspur/config-map"
+	ConfigPath     = "/tmp/ipamwrapper/config-map/conf.yml"
 )
 
 type envConf struct {
@@ -42,7 +42,7 @@ type Config struct {
 	LogLevel      string
 	EnabledMetric bool
 
-	HttpPort                 string
+	HttpPort                 string `yaml:"httpPort"`
 	MetricHttpPort           string
 	GopsListenPort           string
 	PyroscopeAddress         string
@@ -98,14 +98,14 @@ func ParseConfiguration() error {
 func LoadConfigmap() error {
 	configmapBytes, err := os.ReadFile(ConfigInstance.ConfigPath)
 	if nil != err {
-		//return logging.Errorf("failed to read configmap file, error: %v", err)
+		logging.Errorf("failed to read configmap file, error: %v", err)
 	}
 
 	err = yaml.Unmarshal(configmapBytes, &ConfigInstance)
 	if nil != err {
-		//return logging.Errorf("failed to parse configmap, error: %v", err)
+		logging.Errorf("failed to parse configmap, error: %v", err)
 	}
-
+	logging.Debugf("config instance :%+v", ConfigInstance)
 	if ConfigInstance.IpamUnixSocketPath == "" {
 		ConfigInstance.IpamUnixSocketPath = UnixSocketPath
 	}

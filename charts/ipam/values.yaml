@@ -46,11 +46,11 @@ feature:
   ## @param feature.enableStatefulSet the network mode
   enableStatefulSet: true
 
-  ## @param feature.enableSpiderSubnet SpiderSubnet feature gate.
-  enableSpiderSubnet: true
+  ## @param feature.enableSubnet feature gate.
+  enableSubnet: true
 
   gc:
-    ## @param feature.gc.enabled enable retrieve IP in spiderippool CR
+    ## @param feature.gc.enabled enable retrieve IP in ippool CR
     enabled: true
 
     gcAll:
@@ -68,7 +68,7 @@ feature:
 ##
 clusterDefaultPool:
   ## @param clusterDefaultPool.installIPv4IPPool install ipv4 ipamwrapper instance. It is required to set feature.enableIPv4=true
-  installIPv4IPPool: false
+  installIPv4IPPool: true
 
   ## @param clusterDefaultPool.installIPv6IPPool install ipv6 ipamwrapper instance. It is required to set feature.enableIPv6=true
   installIPv6IPPool: false
@@ -79,10 +79,10 @@ clusterDefaultPool:
   ## @param clusterDefaultPool.ipv6IPPoolName the name of ipv6 ipamwrapper instance
   ipv6IPPoolName: "default-v6-ippool"
 
-  ## @param clusterDefaultPool.ipv4SubnetName the name of ipv4 spidersubnet instance
+  ## @param clusterDefaultPool.ipv4SubnetName the name of ipv4 subnet instance
   ipv4SubnetName: "default-v4-subnet"
 
-  ## @param clusterDefaultPool.ipv6SubnetName the name of ipv6 spidersubnet instance
+  ## @param clusterDefaultPool.ipv6SubnetName the name of ipv6 subnet instance
   ipv6SubnetName: "default-v6-subnet"
 
   ## @param clusterDefaultPool.ipv4Subnet the subnet of ipv4 ipamwrapper instance
@@ -317,7 +317,7 @@ ipamwrapperAgent:
 
   debug:
     ## @param ipamwrapperAgent.debug.logLevel the log level of ipamwrapper agent [debug, info, warn, error, fatal, panic]
-    logLevel: "info"
+    logLevel: "debug"
     ## @param ipamwrapperAgent.debug.gopsPort the gops port of ipamwrapper agent
     gopsPort: 5712
 
@@ -341,7 +341,7 @@ ipamwrapperController:
     registry: ghcr.io
 
     ## @param ipamwrapperController.image.repository the image repository of ipamwrapperController
-    repository: spidernet-io/ipamwrapper/ipamwrapper-controller
+    repository: s/ipamwrapper/ipamwrapper-controller
 
     ## @param ipamwrapperController.image.pullPolicy the image pullPolicy of ipamwrapperController
     pullPolicy: IfNotPresent
@@ -596,7 +596,7 @@ ipamwrapperController:
 ## @section ipamwrapperInit parameters
 ##
 ipamwrapperInit:
-  ## @param ipamwrapperInit.name the init job for installing default spiderippool
+  ## @param ipamwrapperInit.name the init job for installing default ippool
   name: "ipamwrapper-init"
 
   ## @param ipamwrapperInit.binName the binName name of ipamwrapperInit
