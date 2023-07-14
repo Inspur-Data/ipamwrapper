@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ipamwrapper-ds
+  namespace: kube-system 
+spec:
+  selector:
+    matchLabels:
+      app: netperf
+  template:
+    metadata:
+      labels:
+        app: netperf
+    spec:
+      containers:
+        - name: ipamwrapper-ds
+          image: inspurwyd/ipamwrapper:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c", "trap : TERM INT; sleep infinity & wait"]
+          volumeMounts:
+          - mountPath: /var/run/inspur
+            name: host-local
+          - mountPath: /root/.kube
+            name: kube-config
+      serviceAccount: ipamwrapper-sa
+      serviceAccountName: ipamwrapper-sa
+      volumes:
+       - name: host-local
+         hostPath:
+           path: /var/run/inspur
+       - name: kube-config
+         hostPath:
+           path: /root/.kube   
+          

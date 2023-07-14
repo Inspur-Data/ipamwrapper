@@ -1,0 +1,18 @@
+apiVersion: inspuripam.inspur.com/v1
+kind: IPPool
+metadata:
+  labels:
+    app.kubernetes.io/name: ippool
+    app.kubernetes.io/instance: ippool-sample
+    app.kubernetes.io/part-of: ipam
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: ipam
+    default: "true"
+  name: nsdefault-test
+spec:
+  default: true
+  # TODO(user): Add fields here
+  cidr: 22.22.22.22/24
+  ipVersion: 4
+  ips:
+   - 22.22.22.22-22.22.22.33

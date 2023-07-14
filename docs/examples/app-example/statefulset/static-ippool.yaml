@@ -1,0 +1,17 @@
+apiVersion: inspuripam.inspur.com/v1
+kind: IPPool
+metadata:
+  labels:
+    app.kubernetes.io/name: ippool
+    app.kubernetes.io/instance: ippool-sample
+    app.kubernetes.io/part-of: ipam
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: ipam
+    default: "true"
+  name: ippool-test
+spec:
+  default: true
+  cidr: 2.2.2.4/24
+  ipVersion: 4
+  ips:
+   - 2.2.2.4-2.2.2.6
