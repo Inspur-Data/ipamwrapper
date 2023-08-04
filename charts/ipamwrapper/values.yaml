@@ -110,7 +110,7 @@ ipamwrapperAgent:
   name: "ipamwrapper"
 
   ## @param ipamwrapperAgent.binName the binName name of ipamwrapperAgent
-  binName: "ipamwrapper"
+  binName: "ipamwrapper-ds"
 
   image:
     ## @param ipamwrapperAgent.image.registry the image registry of ipamwrapperAgent
