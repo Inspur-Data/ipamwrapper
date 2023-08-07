@@ -33,13 +33,23 @@ type AnnoPodIPPoolValue struct {
 	IPv6Pools []string `json:"ipv6,omitempty"`
 }
 
-type AnnoPodIPPoolsValue []AnnoIPPoolItem
+type AnnoIPPoolItems []AnnoIPPoolItem
 
 type AnnoIPPoolItem struct {
 	NIC          string   `json:"interface"`
 	IPv4Pools    []string `json:"ipv4,omitempty"`
 	IPv6Pools    []string `json:"ipv6,omitempty"`
 	CleanGateway bool     `json:"cleangateway"`
+}
+
+type PoolCandidates struct {
+	//NIC string
+	PoolItems []*PoolCandidate
+}
+
+type PoolCandidate struct {
+	IPVersion int64
+	Pools     []string
 }
 
 type AnnoPodRoutes []AnnoRouteItem

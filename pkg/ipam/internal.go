@@ -274,8 +274,8 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 		return nil, logging.Errorf("ipv6 enabled but ipv6 ipools is nil")
 	}
 
-	IppoolsMap := make(map[string]*inspuripamv1.IPPool)
-
+	IpV4PoolsMap := make(map[string]*inspuripamv1.IPPool)
+	IpV6PoolsMap := make(map[string]*inspuripamv1.IPPool)
 	for _, v4pool := range ippools.IPv4Pools {
 		ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v4pool, false)
 		if err != nil {
@@ -291,7 +291,7 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 				logging.Errorf("ippool:%s is not ipv4", v4pool)
 				continue
 			}
-			IppoolsMap[v4pool] = ippool
+			IpV4PoolsMap[v4pool] = ippool
 		}
 	}
 
@@ -310,58 +310,29 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 				logging.Errorf("ippool:%s is not ipv6", v6pool)
 				continue
 			}
-			IppoolsMap[v6pool] = ippool
+			IpV6PoolsMap[v6pool] = ippool
 		}
 	}
 
-	//todo Nodeaffinity namespace affinity
-	for poolname, pool := range IppoolsMap {
-		//node affinity
-		if pool.Spec.NodeAffinity != nil {
-			node, err := i.nodeManager.GetNodeByName(ctx, pod.Spec.NodeName, constant.UseCache)
-			if err != nil {
-				delete(IppoolsMap, poolname)
-				continue
-			}
-			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NodeAffinity)
-			if err != nil {
-				delete(IppoolsMap, poolname)
-				continue
-			}
-			if !selector.Matches(labels.Set(node.Labels)) {
-				logging.Errorf("unmatched node affinity of IPPool %s", poolname)
-				delete(IppoolsMap, poolname)
-			}
-		}
-
-		//namespace affinity
-		if pool.Spec.NamespaceAffinity != nil {
-			namespace, err := i.nsManager.GetNamespace(ctx, pod.Namespace, constant.UseCache)
-			if err != nil {
-				delete(IppoolsMap, poolname)
-				continue
-			}
-			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NamespaceAffinity)
-			if err != nil {
-				delete(IppoolsMap, poolname)
-				continue
-			}
-			if !selector.Matches(labels.Set(namespace.Labels)) {
-				logging.Errorf("unmatched namespace affinity of IPPool %s", poolname)
-				delete(IppoolsMap, poolname)
-			}
-		}
+	//check node affinity and namespace affinity
+	err := i.checkAffinity(ctx, IpV4PoolsMap, pod)
+	if err != nil {
+		logging.Errorf("checkAffinity ipv4 pool failed:%v", err)
+	}
+	err = i.checkAffinity(ctx, IpV6PoolsMap, pod)
+	if err != nil {
+		logging.Errorf("checkAffinity ipv6 pool failed:%v", err)
 	}
 
-	if len(IppoolsMap) == 0 {
-		return nil, logging.Errorf("all ippool candidate are invalid")
+	if len(IpV4PoolsMap) == 0 && len(IpV6PoolsMap) == 0 {
+		return nil, logging.Errorf("all ipv4 and ipv6 pools are empty")
 	}
 
 	//todo concurrent allocate !!!!!
 
 	var result []*types.AllocationResult
 	var errs []error
-	for name, ippool := range IppoolsMap {
+	for name, ippool := range IpV4PoolsMap {
 		ip, err := i.ippoolManager.AllocateIP(ctx, ippool, nic, pod, i.config.IPv4ReservedIP, i.config.IPv6ReservedIP)
 		if err != nil {
 			logging.Errorf("allocate from ipool:%s failed:%v", name, err)
@@ -377,7 +348,23 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 		break
 	}
 
-	if len(errs) == len(IppoolsMap) {
+	for name, ippool := range IpV6PoolsMap {
+		ip, err := i.ippoolManager.AllocateIP(ctx, ippool, nic, pod, i.config.IPv4ReservedIP, i.config.IPv6ReservedIP)
+		if err != nil {
+			logging.Errorf("allocate from ipool:%s failed:%v", name, err)
+			errs = append(errs, err)
+			continue
+		}
+		res := &types.AllocationResult{
+			IP:           ip,
+			Routes:       convert.ConvertSpecRoutesToOAIRoutes(nic, ippool.Spec.Routes),
+			CleanGateway: cleanGateway,
+		}
+		result = append(result, res)
+		break
+	}
+
+	if len(errs) == len(IpV4PoolsMap)+len(IpV6PoolsMap) {
 		return nil, logging.Errorf("allocate ip from all ippools failed")
 	}
 
@@ -467,5 +454,46 @@ func (i *ipam) release(ctx context.Context, uid string, details []inspuripamv1.I
 		return logging.Errorf("failed to release all allocated IP addresses %+v", detailGroups)
 	}
 
+	return nil
+}
+
+// checkAffinity filter the ippool by nodeAffinity and namespaceAffinity
+func (i *ipam) checkAffinity(ctx context.Context, IppoolsMap map[string]*inspuripamv1.IPPool, pod *corev1.Pod) error {
+	for poolname, pool := range IppoolsMap {
+		if pool.Spec.NodeAffinity != nil {
+			node, err := i.nodeManager.GetNodeByName(ctx, pod.Spec.NodeName, constant.UseCache)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NodeAffinity)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			if !selector.Matches(labels.Set(node.Labels)) {
+				logging.Errorf("unmatched node affinity of IPPool %s", poolname)
+				delete(IppoolsMap, poolname)
+			}
+		}
+
+		//namespace affinity
+		if pool.Spec.NamespaceAffinity != nil {
+			namespace, err := i.nsManager.GetNamespace(ctx, pod.Namespace, constant.UseCache)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			selector, err := metav1.LabelSelectorAsSelector(pool.Spec.NamespaceAffinity)
+			if err != nil {
+				delete(IppoolsMap, poolname)
+				continue
+			}
+			if !selector.Matches(labels.Set(namespace.Labels)) {
+				logging.Errorf("unmatched namespace affinity of IPPool %s", poolname)
+				delete(IppoolsMap, poolname)
+			}
+		}
+	}
 	return nil
 }
