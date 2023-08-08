@@ -69,6 +69,7 @@ func (r *IPPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	//ippool is deleting
 	if ippool.DeletionTimestamp != nil {
+		logging.Debugf("ippool:%s is deleting...", req.NamespacedName.String())
 		var needDel bool
 		// ippool has no allocated ip,can direct delete
 		if ippool.Status.AllocatedIPs == nil || *(ippool.Status.AllocatedIPCount) == 0 {
@@ -90,6 +91,7 @@ func (r *IPPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		}
 	} else {
 		// ippool is created or updated
+		logging.Debugf("ippool:%s is creating or updating ...", req.NamespacedName.String())
 		needUpdate := false
 		// initial the original data
 		if ippool.Status.AllocatedIPCount == nil {
