@@ -4,3 +4,4 @@ go.sum
 /cmd/ipamwrapper/*.exe
 /cmd/ipamwrapper/test.go
 /cmd/ipamwrapper-ds/*.exe
+/cmd/controller/*.exe

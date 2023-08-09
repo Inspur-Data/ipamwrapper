@@ -1,0 +1,18 @@
+apiVersion: inspuripam.inspur.com/v1
+kind: IPAMEndpoint
+metadata:
+  labels:
+    app.kubernetes.io/name: ipamendpoint
+    app.kubernetes.io/instance: ipamendpoint-sample
+    app.kubernetes.io/part-of: ipam
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: ipam
+  name: test
+  namespace: test-pbb
+status:
+  uid: ajkshn
+  node: node1
+  ips:
+   - interface: eth0 
+     ipv4: 1.2.3.4
+

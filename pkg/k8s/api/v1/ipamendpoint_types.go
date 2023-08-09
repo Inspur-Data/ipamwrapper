@@ -78,6 +78,12 @@ type IPAMEndpointStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+// +kubebuilder:printcolumn:JSONPath=".status.ips[0].interface",description="interface",name="NIC",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.ips[0].ipv4Pool",description="ipv4Pool",name="IP4POOL",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.ips[0].ipv4",description="ipv4",name="IPV4",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.ips[0].ipv6Pool",description="ipv6Pool",name="IP6POOL",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.ips[0].ipv6",description="ipv6",name="IPV6",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.node",description="node",name="NODE",type=string
 
 // IPAMEndpoint is the Schema for the ipamendpoints API
 type IPAMEndpoint struct {

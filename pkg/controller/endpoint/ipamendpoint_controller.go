@@ -18,6 +18,10 @@ package endpointcontroller
 
 import (
 	"context"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -50,6 +54,36 @@ func (r *IPAMEndpointReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
+	endpoint := inspuripamv1.IPAMEndpoint{}
+	err := r.Get(ctx, req.NamespacedName, &endpoint)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			logging.Debugf("endpoint %v has been deleted", req.NamespacedName.String())
+			return ctrl.Result{}, nil
+		} else {
+			logging.Errorf("get endpoint %v failed, err : %v", req.NamespacedName.String(), err)
+			return ctrl.Result{}, err
+		}
+	}
+
+	if endpoint.DeletionTimestamp != nil {
+		logging.Debugf("endpoint :%s is deleting...", req.NamespacedName.String())
+		err := r.removeFinalizer(ctx, &endpoint)
+		if nil != err {
+			if apierrors.IsNotFound(err) {
+				logging.Debugf("endpoint:%v has been deleted", req.NamespacedName.String())
+				return ctrl.Result{}, nil
+			} else {
+				logging.Errorf("remove the endpoint :%s  finalizer failed: %v", req.NamespacedName.String(), err)
+				return ctrl.Result{}, err
+			}
+		} else {
+			logging.Debugf("remove ippool: '%s' finalizer successfully", req.NamespacedName.String())
+		}
+	} else {
+		logging.Debugf("endpoint :%s is creating or updating...", req.NamespacedName.String())
+		//todo add some logic
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -59,4 +93,19 @@ func (r *IPAMEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&inspuripamv1.IPAMEndpoint{}).
 		Complete(r)
+}
+
+// removeFinalizer removes ipam endpoint's  finalizer
+func (r *IPAMEndpointReconciler) removeFinalizer(ctx context.Context, endpoint *inspuripamv1.IPAMEndpoint) error {
+	if !controllerutil.ContainsFinalizer(endpoint, constant.IPAMFinalizer) {
+		return nil
+	}
+
+	controllerutil.RemoveFinalizer(endpoint, constant.IPAMFinalizer)
+	err := r.Client.Update(ctx, endpoint)
+	if nil != err {
+		return err
+	}
+
+	return nil
 }

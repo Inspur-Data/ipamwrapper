@@ -94,9 +94,12 @@ type IPPoolStatus struct {
 	AllocatedIPCount *int64 `json:"allocatedIPCount,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:JSONPath=".spec.ipVersion",description="ipVersion",name="IPVERSION",type=string
+// +kubebuilder:printcolumn:JSONPath=".spec.cidr",description="cidr",name="CIDR",type=string
+// +kubebuilder:printcolumn:JSONPath=".status.allocatedIPCount",description="allocatedIPCount",name="ALLOCATED",type=integer
+// +kubebuilder:printcolumn:JSONPath=".status.totalIPCount",description="totalIPCount",name="TOTAL",type=integer
 // IPPool is the Schema for the ippools API
 type IPPool struct {
 	metav1.TypeMeta   `json:",inline"`

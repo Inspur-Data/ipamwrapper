@@ -68,12 +68,13 @@ func main() {
 	enableLeaderElection = true
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
-		HealthProbeBindAddress: probeAddr,
-		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "ipamwrapper.inspur.com",
+		Scheme:                  scheme,
+		MetricsBindAddress:      metricsAddr,
+		Port:                    9443,
+		HealthProbeBindAddress:  probeAddr,
+		LeaderElection:          enableLeaderElection,
+		LeaderElectionNamespace: "kube-system",
+		LeaderElectionID:        "ipamwrapper.inspur.com",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -108,6 +109,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "IPAMEndpoint")
 		os.Exit(1)
 	}
+	/*
+		//webhook
+		if err = (&inspuripamv1.IPAMEndpoint{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IPAMEndpoint")
+			os.Exit(1)
+		}
+		if err = (&inspuripamv1.IPPool{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "IPPool")
+			os.Exit(1)
+		}
+	*/
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
