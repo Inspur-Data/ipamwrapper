@@ -17,7 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/Inspur-Data/ipamwrapper/cmd/controller/config"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -33,6 +36,7 @@ import (
 
 	endpointcontroller "github.com/Inspur-Data/ipamwrapper/pkg/controller/endpoint"
 	ippoolcontroller "github.com/Inspur-Data/ipamwrapper/pkg/controller/ippool"
+	ipamgc "github.com/Inspur-Data/ipamwrapper/pkg/gc"
 	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	//+kubebuilder:scaffold:imports
 )
@@ -47,6 +51,16 @@ func init() {
 
 	utilruntime.Must(inspuripamv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
+	err := config.ParseConfiguration()
+	if err != nil {
+		logging.Panicf("ParseConfig failed: %v", err)
+	}
+
+	err = config.LoadConfigmap()
+	if err != nil {
+		logging.Panicf("Loadconfigmap failed: %v", err)
+	}
+
 }
 
 func main() {
@@ -92,6 +106,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	//start the period GC
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	gc, err := ipamgc.NewGC(mgr)
+	if err != nil {
+		logging.Errorf("new ipam gc failed:%v", err)
+	} else {
+		go gc.StartGC(ctx, config.ConfigInstance.DefaultGCPeriod)
+	}
 	//ippool controller
 	if err = (&ippoolcontroller.IPPoolReconciler{
 		Client: mgr.GetClient(),

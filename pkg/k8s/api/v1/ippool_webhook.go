@@ -17,8 +17,13 @@ limitations under the License.
 package v1
 
 import (
+	"fmt"
+	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
+	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -43,7 +48,9 @@ var _ webhook.Defaulter = &IPPool{}
 func (r *IPPool) Default() {
 	ippoollog.Info("default", "name", r.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	if err := r.adjustIPPool(); err != nil {
+		ippoollog.Error(err, "adjust ippool failed")
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
@@ -73,4 +80,59 @@ func (r *IPPool) ValidateDelete() (warnings admission.Warnings, err error) {
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil, nil
+}
+
+// adjustIPPool check the base info about a ippool
+func (r *IPPool) adjustIPPool() error {
+	//ippool is deleting
+	if r.DeletionTimestamp != nil {
+		ippoollog.Info("ippool is deleting, noting to adjust")
+		return nil
+	}
+
+	//check the finalizer
+	if !controllerutil.ContainsFinalizer(r, constant.IPAMFinalizer) {
+		controllerutil.AddFinalizer(r, constant.IPAMFinalizer)
+		ippoollog.Info("add finalizer")
+	}
+
+	//set ip version
+	if r.Spec.IPVersion == nil {
+		var version types.IPVersion
+		if ipamip.IsIPv4CIDR(r.Spec.CIDR) {
+			version = constant.IPv4
+		} else if ipamip.IsIPv6CIDR(r.Spec.CIDR) {
+			version = constant.IPv6
+		} else {
+			return fmt.Errorf("failed to generate 'spec.ipVersion' from 'spec.subnet' %s, nothing to mutate", r.Spec.CIDR)
+		}
+		r.Spec.IPVersion = new(types.IPVersion)
+		*r.Spec.IPVersion = version
+		ippoollog.Info("Set 'spec.ipVersion' to %d", version)
+	}
+
+	//merge ips
+	if len(r.Spec.IPs) > 1 {
+		mergedIPs, err := ipamip.MergeIPRanges(*r.Spec.IPVersion, r.Spec.IPs)
+		if err != nil {
+			return fmt.Errorf("failed to merge ips: %v", err)
+		}
+
+		ips := r.Spec.IPs
+		r.Spec.IPs = mergedIPs
+		ippoollog.Info("Merge ips: %v to %v", ips, mergedIPs)
+	}
+
+	if len(r.Spec.ExcludeIPs) > 1 {
+		mergedExcludeIPs, err := ipamip.MergeIPRanges(*r.Spec.IPVersion, r.Spec.ExcludeIPs)
+		if err != nil {
+			return fmt.Errorf("failed to merge ips: %v", err)
+		}
+
+		excludeIPs := r.Spec.ExcludeIPs
+		r.Spec.ExcludeIPs = mergedExcludeIPs
+		ippoollog.Info("Merge ips: %v to %v", excludeIPs, mergedExcludeIPs)
+	}
+
+	return nil
 }
