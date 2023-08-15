@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
 	"github.com/containernetworking/cni/pkg/types"
 	"net"
 )
@@ -28,4 +29,8 @@ type PodArgs struct {
 	K8S_POD_NAMESPACE          types.UnmarshallableString
 	K8S_POD_INFRA_CONTAINER_ID types.UnmarshallableString
 	K8S_POD_UID                types.UnmarshallableString
+}
+type RouterNetConf struct {
+	types.NetConf
+	RouterConfig *models.RouterConfig  `json:"routers"`
 }

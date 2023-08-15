@@ -1,0 +1,76 @@
+swagger: "2.0"
+info:
+  description: ipamwrapper router
+  title: ipamwrapper router  API
+  version: V1
+x-schemes:
+  - unix
+basePath: "/v1"
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  "/router/config":
+    get:
+      summary: Get router config
+      description: |
+        Send a request to daemonset to get router config
+      tags:
+        - router
+      parameters:
+        - name: get-router-config
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/GetRouterArgs"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/RouterConfig"
+        '500':
+          description: Config not initialized successfully or others
+          x-go-name: Failure
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  Error:
+    description: API error
+    type: string
+  RouterRule:
+    description: Get Router Rule
+    type: object
+    properties:
+      dst:
+        type: string
+      gw:
+        type: string
+  RouterConfig:
+    description: Router config
+    type: object
+    properties:
+      tableName:
+        type: string
+      detectGateway:
+        type: boolean
+      serviceCIDR:
+        type: array
+        items:
+          type: string
+      podDefaultRouteNIC:
+        type: string
+      routes:
+        type: array
+        items:
+          $ref: "#/definitions/RouterRule"
+    required:
+      - routes
+  GetRouterArgs:
+    description: Get Router Args
+    type: object
+    properties:
+      podName:
+        type: string
+      podNamespace:
+        type: string
