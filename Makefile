@@ -19,7 +19,7 @@ build-bin:
 	go mod tidy
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNME}-ds
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNME}
 
 
 .PHONY: build-ipamwrapper
