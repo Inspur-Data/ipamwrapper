@@ -331,17 +331,17 @@ ipamwrapperController:
   replicas: 1
 
   ## @param ipamwrapperController.binName the binName name of ipamwrapperController
-  binName: "ipamwrapper-controller"
+  binName: "controller"
 
   ## @param ipamwrapperController.hostnetwork enable hostnetwork mode of ipamwrapperController pod. Notice, if no CNI available before ipamwrapper installation, must enable this
   hostnetwork: true
 
   image:
     ## @param ipamwrapperController.image.registry the image registry of ipamwrapperController
-    registry: ghcr.io
+    registry:
 
     ## @param ipamwrapperController.image.repository the image repository of ipamwrapperController
-    repository: s/ipamwrapper/ipamwrapper-controller
+    repository: ipamwrapper-controller
 
     ## @param ipamwrapperController.image.pullPolicy the image pullPolicy of ipamwrapperController
     pullPolicy: IfNotPresent
@@ -350,7 +350,7 @@ ipamwrapperController:
     digest: ""
 
     ## @param ipamwrapperController.image.tag the image tag of ipamwrapperController, overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "v1.0"
 
     ## @param ipamwrapperController.image.imagePullSecrets the image imagePullSecrets of ipamwrapperController
     imagePullSecrets: []

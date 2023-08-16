@@ -15,7 +15,24 @@ spec:
     singular: ippool
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - description: ipVersion
+      jsonPath: .spec.ipVersion
+      name: IPVERSION
+      type: string
+    - description: cidr
+      jsonPath: .spec.cidr
+      name: CIDR
+      type: string
+    - description: allocatedIPCount
+      jsonPath: .status.allocatedIPCount
+      name: ALLOCATED
+      type: integer
+    - description: totalIPCount
+      jsonPath: .status.totalIPCount
+      name: TOTAL
+      type: integer
+    name: v1
     schema:
       openAPIV3Schema:
         description: IPPool is the Schema for the ippools API
@@ -162,6 +179,9 @@ spec:
                       type: string
                     gw:
                       type: string
+                  required:
+                  - dst
+                  - gw
                   type: object
                 type: array
             required:

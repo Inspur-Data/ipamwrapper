@@ -4,18 +4,14 @@
 package ip
 
 import (
-	"fmt"
 	"bytes"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
-	current "github.com/containernetworking/cni/pkg/types/100"
 	"math/big"
 	"net"
 	"sort"
 
-	"github.com/asaskevich/govalidator"
-	"github.com/vishvananda/netlink"
-
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
+	"github.com/asaskevich/govalidator"
 )
 
 // IsIPVersion reports whether version is a valid IP version (4 or 6).
@@ -207,33 +203,4 @@ func ipToInt(ip net.IP) *big.Int {
 // intToIP converts big.Int to net.IP.
 func intToIP(i *big.Int) net.IP {
 	return net.IP(i.Bytes()).To16()
-}
-
-// GetIPFamilyByResult return IPFamily by parse CNI Result
-func GetIPFamilyByResult(prevResult *current.Result) (int, error) {
-	if len(prevResult.Interfaces) == 0 {
-		return -1, fmt.Errorf("can't found any interface from prevResult")
-	}
-
-	ipFamily := -1
-	enableIpv4, enableIpv6 := false, false
-	for _, v := range prevResult.IPs {
-		if v.Address.IP.To4() != nil {
-			enableIpv4 = true
-			ipFamily = netlink.FAMILY_V4
-		} else {
-			enableIpv6 = true
-			ipFamily = netlink.FAMILY_V6
-		}
-	}
-
-	if ipFamily < 0 {
-		return ipFamily, fmt.Errorf("failed to get pod's ip family: no found ips")
-	}
-
-	if enableIpv4 && enableIpv6 {
-		return netlink.FAMILY_ALL, nil
-	}
-
-	return ipFamily, nil
 }

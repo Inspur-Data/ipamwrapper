@@ -2,6 +2,8 @@
 .idea
 go.sum
 /cmd/ipamwrapper/*.exe
+/cmd/ipamwrapper/ipamwrapper
 /cmd/ipamwrapper/test.go
 /cmd/ipamwrapper-ds/*.exe
+/cmd/ipamwrapper-ds/ipamwrapper-ds
 /cmd/controller/*.exe

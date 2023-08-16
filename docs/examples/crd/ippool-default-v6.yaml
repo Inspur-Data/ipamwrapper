@@ -1,0 +1,18 @@
+apiVersion: inspuripam.inspur.com/v1
+kind: IPPool
+metadata:
+  labels:
+    app.kubernetes.io/name: ippool
+    app.kubernetes.io/instance: ippool-sample
+    app.kubernetes.io/part-of: ipam
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: ipam
+    default: "true"
+  name: ippool-sample-v6
+spec:
+  default: true
+  # TODO(user): Add fields here
+  cidr: fd00:172:18::/64
+  ipVersion: 6
+  ips:
+   - fd00:172:18::40-fd00:172:18::50

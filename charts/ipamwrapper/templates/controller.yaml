@@ -1,0 +1,213 @@
+apiVersion: {{ include "capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ipamwrapper.ipamwrapperController.labels" . | nindent 4 }}
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.global.commonAnnotations }}
+  annotations:
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.ipamwrapperController.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ipamwrapper.ipamwrapperController.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if or .Values.ipamwrapperController.podAnnotations .Values.global.commonAnnotations }}
+      annotations:
+        {{- if .Values.global.commonAnnotations }}
+        {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.ipamwrapperController.podAnnotations }}
+        {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperController.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      labels:
+        {{- include "ipamwrapper.ipamwrapperController.selectorLabels" . | nindent 8 }}
+        {{- if .Values.global.commonLabels }}
+        {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.ipamwrapperController.podLabels }}
+        {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperController.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.ipamwrapperController.image.imagePullSecrets }}
+      imagePullSecrets:
+      {{- with .Values.ipamwrapperController.image.imagePullSecrets }}
+      {{- toYaml . | trim | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      serviceAccountName: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+      priorityClassName: {{ default "system-node-critical" .Values.ipamwrapperController.priorityClassName }}
+      {{- if .Values.ipamwrapperController.hostnetwork }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- else }}
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      {{- end }}
+      restartPolicy: Always
+      {{- with .Values.ipamwrapperController.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.ipamwrapperController.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ipamwrapperController.affinity }}
+      affinity:
+      {{- include "tplvalues.render" (dict "value" .Values.ipamwrapperController.affinity "context" $) | nindent 6 }}
+      {{- else }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    {{- include "ipamwrapper.ipamwrapperController.selectorLabels" . | nindent 20 }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+        image: {{ include "ipamwrapper.ipamwrapperController.image" . | quote }}
+        imagePullPolicy: {{ .Values.ipamwrapperController.image.pullPolicy }}
+        command:
+        - {{ .Values.ipamwrapperController.binName }}
+        args:
+        - daemon
+        - --config-path=/tmp/ipamwrapper/config-map/conf.yml
+        - --tls-server-cert=/etc/tls/tls.crt
+        - --tls-server-key=/etc/tls/tls.key
+        {{- with .Values.ipamwrapperController.extraArgs }}
+        {{- toYaml . | trim | nindent 8 }}
+        {{- end }}
+        ports:
+        {{- if .Values.ipamwrapperController.prometheus.enabled }}
+        - name: metrics
+          containerPort: {{ .Values.ipamwrapperController.prometheus.port }}
+          protocol: TCP
+        {{- end }}
+        - name: http
+          containerPort: {{ .Values.ipamwrapperController.httpPort }}
+          protocol: TCP
+        - name: webhook
+          containerPort: {{ .Values.ipamwrapperController.webhookPort }}
+          protocol: TCP
+        {{- if semverCompare ">=1.20-0" .Capabilities.KubeVersion.Version }}
+        startupProbe:
+          httpGet:
+            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/startup
+            port: {{ .Values.ipamwrapperController.httpPort }}
+            scheme: HTTP
+          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.startupProbe.failureThreshold }}
+          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.startupProbe.periodSeconds }}
+          successThreshold: 1
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/liveness
+            port: {{ .Values.ipamwrapperController.httpPort }}
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.livenessProbe.periodSeconds }}
+          successThreshold: 1
+          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.livenessProbe.failureThreshold }}
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
+            path: /v1/runtime/readiness
+            port: {{ .Values.ipamwrapperController.httpPort }}
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.readinessProbe.periodSeconds }}
+          successThreshold: 1
+          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.readinessProbe.failureThreshold }}
+          timeoutSeconds: 1
+        {{- with .Values.ipamwrapperController.resources }}
+        resources:
+        {{- toYaml . | trim | nindent 10 }}
+        {{- end }}
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - {{ .Values.ipamwrapperController.binName }}
+                - shutdown
+        env:
+        - name: IPAMWRAPPER_LOG_LEVEL
+          value: {{ .Values.ipamwrapperController.debug.logLevel | quote }}
+        - name: IPAMWRAPPER_ENABLED_METRIC
+          value: {{ .Values.ipamwrapperController.prometheus.enabled | quote }}
+        - name: IPAMWRAPPER_ENABLED_DEBUG_METRIC
+          value: {{ .Values.ipamwrapperController.prometheus.enabledDebugMetric | quote }}
+        - name: IPAMWRAPPER_METRIC_HTTP_PORT
+          value: {{ .Values.ipamwrapperController.prometheus.port | quote }}
+        - name: IPAMWRAPPER_GOPS_LISTEN_PORT
+          value: {{ .Values.ipamwrapperController.debug.gopsPort | quote }}
+        - name: IPAMWRAPPER_WEBHOOK_PORT
+          value: {{ .Values.ipamwrapperController.webhookPort | quote }}
+        - name: IPAMWRAPPER_HEALTH_PORT
+          value: {{ .Values.ipamwrapperController.httpPort | quote }}
+        - name: IPAMWRAPPER_GC_IP_ENABLED
+          value: {{ .Values.feature.gc.enabled | quote }}
+        - name: IPAMWRAPPER_GC_TERMINATING_POD_IP_ENABLED
+          value: {{ .Values.feature.gc.GcDeletingTimeOutPod.enabled | quote }}
+        - name: IPAMWRAPPER_GC_ADDITIONAL_GRACE_DELAY
+          value: {{ .Values.feature.gc.GcDeletingTimeOutPod.delay | quote }}
+        - name: IPAMWRAPPER_GC_DEFAULT_INTERVAL_DURATION
+          value: {{ .Values.feature.gc.gcAll.intervalInSecond | quote }}
+        - name: IPAMWRAPPER_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ipamwrapper_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        {{- with .Values.ipamwrapperController.extraEnv }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.ipamwrapperController.securityContext }}
+        securityContext:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        - name: config-path
+          mountPath: /tmp/ipamwrapper/config-map
+          readOnly: true
+        - name: tls
+          mountPath: /etc/tls
+          readOnly: true
+        {{- if .Values.ipamwrapperController.extraVolumes }}
+        {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperController.extraVolumeMounts "context" $ ) | nindent 8 }}
+        {{- end }}
+      volumes:
+      # To read the configuration from the config map
+      - name: config-path
+        configMap:
+          name: {{ .Values.global.configName }}
+      - name: tls
+        projected:
+          defaultMode: 0400
+          sources:
+          - secret:
+              name: {{ .Values.ipamwrapperController.tls.secretName | trunc 63 | trimSuffix "-" }}
+              items:
+                - key: tls.crt
+                  path: tls.crt
+                - key: tls.key
+                  path: tls.key
+      {{- if .Values.ipamwrapperController.extraVolumeMounts }}
+      {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperController.extraVolumeMounts "context" $ ) | nindent 6 }}
+      {{- end }}
