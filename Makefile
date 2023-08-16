@@ -21,7 +21,6 @@ build-bin:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNAME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNAME}
 
-
 .PHONY: build-ipamwrapper
 build-ipamwrapper: build-bin
 	docker build -t $(REGISTRY)/${IMAGENAME}:$(RELEASE_TAG) --build-arg VERSION=$(RELEASE_TAG) .
