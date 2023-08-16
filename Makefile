@@ -5,6 +5,9 @@ RELEASE_TAG = $(shell cat VERSION)
 DATE = $(shell date +"%Y-%m-%d_%H:%M:%S")
 REGISTRY = inspurwyd
 IMAGENAME =  ipamwrapper
+RouterNME = router
+
+
 # image tag
 IPAM_IMG = ${IMAGENAME}:$(VERSION)
 GOLDFLAGS = "-w -s -extldflags '-z now' -X github.com/Inspur-Data/${IMAGENAME}/versions.COMMIT=$(COMMIT) -X github.com/Inspur-Data/${IMAGENAME}/versions.VERSION=$(RELEASE_TAG) -X github.com/Inspur-Data/${IMAGENAME}/versions.BUILDDATE=$(DATE)"
@@ -16,6 +19,8 @@ build-bin:
 	go mod tidy
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNME}-ds
+
 
 .PHONY: build-ipamwrapper
 build-ipamwrapper: build-bin
