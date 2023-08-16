@@ -17,9 +17,10 @@ GLDFLAGS+="-X ${REPO}/pkg/version.Raw=${VERSION_OVERRIDE}"
 .PHONY: build-bin
 build-bin:
 	go mod tidy
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNAME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNAME
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNAME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNAME}
+
 
 .PHONY: build-ipamwrapper
 build-ipamwrapper: build-bin
