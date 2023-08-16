@@ -8,7 +8,6 @@ import (
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types"
 	current "github.com/containernetworking/cni/pkg/types/100"
-	"net"
 	//"time"
 )
 
@@ -54,14 +53,14 @@ func CmdDel(args *skel.CmdArgs) (err error) {
 	defer netns.Close()*/
 
 	// set rule in ns
-	for  _, route := range routerConfig.Routes{
+	/*for  _, route := range routerConfig.Routes{
 		// get dst and gw
 		_,dst,err := net.ParseCIDR(route.Dst)
 		if err != nil {
 			return fmt.Errorf("failed to translate dst :%v,err: %v",dst, err.Error())
 		}
 		//DelRoute(100, ipFamily,netlink.SCOPE_UNIVERSE,args.IfName,dst,net.ParseIP(route.Gw))
-	}
+	}*/
 
 	return nil
 }
