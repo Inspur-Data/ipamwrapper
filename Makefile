@@ -5,7 +5,7 @@ RELEASE_TAG = $(shell cat VERSION)
 DATE = $(shell date +"%Y-%m-%d_%H:%M:%S")
 REGISTRY = inspurwyd
 IMAGENAME =  ipamwrapper
-RouterNME = router
+RouterNAME = router
 
 
 # image tag
@@ -19,7 +19,7 @@ build-bin:
 	go mod tidy
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME} -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}-ds
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${IMAGENAME}-cni -ldflags ${GLDFLAGS}  -v ./cmd/${IMAGENAME}
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNME}
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildmode=pie -o bin/${RouterNAME} -ldflags ${GLDFLAGS}  -v ./cmd/${RouterNAME}
 
 
 .PHONY: build-ipamwrapper
