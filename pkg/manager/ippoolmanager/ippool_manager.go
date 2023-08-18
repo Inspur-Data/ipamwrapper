@@ -226,6 +226,7 @@ func (im *ipPoolManager) ReleaseIP(ctx context.Context, poolName string, ipAndUI
 					delete(allocatedRecords, iu.IP)
 					*ipPool.Status.AllocatedIPCount--
 					release = true
+					logging.Debugf("release ip:%s,pod :%s", iu.IP, record.NamespacedName)
 				}
 			}
 		}

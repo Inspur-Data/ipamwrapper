@@ -7,3 +7,4 @@ go.sum
 /cmd/ipamwrapper-ds/*.exe
 /cmd/ipamwrapper-ds/ipamwrapper-ds
 /cmd/controller/*.exe
+/cmd/controller/controller

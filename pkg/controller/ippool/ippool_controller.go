@@ -21,6 +21,7 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
+	"github.com/Inspur-Data/ipamwrapper/pkg/utils/convert"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -98,6 +99,17 @@ func (r *IPPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			needUpdate = true
 			ippool.Status.AllocatedIPCount = pointer.Int64(0)
 			logging.Debugf("set ippool  '%s' status AllocatedIPCount to 0", req.NamespacedName.String())
+		}
+
+		allocatedIPs, err := convert.UnmarshalIPPoolAllocatedIPs(ippool.Status.AllocatedIPs)
+		if nil != err {
+
+		}
+
+		if int64(len(allocatedIPs)) != *ippool.Status.AllocatedIPCount {
+			needUpdate = true
+			ippool.Status.AllocatedIPCount = pointer.Int64(int64(len(allocatedIPs)))
+			logging.Debugf("allocateIPCount unequal to length of the allocatedIPs, set ippool  '%s' status AllocatedIPCount to %d", req.NamespacedName, len(allocatedIPs))
 		}
 
 		totalIPs, err := ipamip.AssembleTotalIPs(*ippool.Spec.IPVersion, ippool.Spec.IPs, ippool.Spec.ExcludeIPs)

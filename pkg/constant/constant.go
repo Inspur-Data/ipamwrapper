@@ -52,3 +52,9 @@ const (
 	AnnoNSDefautlV6Pool = Pre + "/default-ipv6-ippool"
 	AnnoNSDefautlPool   = Pre + "/default-ippool"
 )
+
+const (
+	APIGroup   = "inspuripam.inspur.com"
+	APIVersion = "v1"
+	IPPOOL     = "ippool"
+)

@@ -21,8 +21,11 @@ import (
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -31,8 +34,10 @@ import (
 
 // log is for logging in this package.
 var ippoollog = logf.Log.WithName("ippool-resource")
+var ippoolClient client.Client
 
 func (r *IPPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
+	ippoolClient = mgr.GetClient()
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
@@ -61,7 +66,10 @@ var _ webhook.Validator = &IPPool{}
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *IPPool) ValidateCreate() (warnings admission.Warnings, err error) {
 	ippoollog.Info("validate create", "name", r.Name)
-
+	errlist := r.validCreate()
+	if len(errlist) != 0 {
+		return nil, apierrors.NewInvalid(schema.GroupKind{Group: constant.APIGroup, Kind: constant.IPPOOL}, r.Name, errlist)
+	}
 	// TODO(user): fill in your validation logic upon object creation.
 	return nil, nil
 }
@@ -77,7 +85,10 @@ func (r *IPPool) ValidateUpdate(old runtime.Object) (warnings admission.Warnings
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *IPPool) ValidateDelete() (warnings admission.Warnings, err error) {
 	ippoollog.Info("validate delete", "name", r.Name)
-
+	errList := r.validDelete()
+	if len(errList) != 0 {
+		return nil, apierrors.NewInvalid(schema.GroupKind{Group: constant.APIGroup, Kind: constant.IPPOOL}, r.Name, errList)
+	}
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil, nil
 }
