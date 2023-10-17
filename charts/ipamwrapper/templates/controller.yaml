@@ -101,39 +101,6 @@ spec:
         - name: webhook
           containerPort: {{ .Values.ipamwrapperController.webhookPort }}
           protocol: TCP
-        {{- if semverCompare ">=1.20-0" .Capabilities.KubeVersion.Version }}
-        startupProbe:
-          httpGet:
-            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
-            path: /v1/runtime/startup
-            port: {{ .Values.ipamwrapperController.httpPort }}
-            scheme: HTTP
-          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.startupProbe.failureThreshold }}
-          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.startupProbe.periodSeconds }}
-          successThreshold: 1
-        {{- end }}
-        livenessProbe:
-          httpGet:
-            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
-            path: /v1/runtime/liveness
-            port: {{ .Values.ipamwrapperController.httpPort }}
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.livenessProbe.periodSeconds }}
-          successThreshold: 1
-          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.livenessProbe.failureThreshold }}
-          timeoutSeconds: 1
-        readinessProbe:
-          httpGet:
-            host: {{ .Values.feature.enableIPv4 | ternary "127.0.0.1" "::1" | quote }}
-            path: /v1/runtime/readiness
-            port: {{ .Values.ipamwrapperController.httpPort }}
-            scheme: HTTP
-          initialDelaySeconds: 15
-          periodSeconds: {{ .Values.ipamwrapperController.healthChecking.readinessProbe.periodSeconds }}
-          successThreshold: 1
-          failureThreshold: {{ .Values.ipamwrapperController.healthChecking.readinessProbe.failureThreshold }}
-          timeoutSeconds: 1
         {{- with .Values.ipamwrapperController.resources }}
         resources:
         {{- toYaml . | trim | nindent 10 }}
