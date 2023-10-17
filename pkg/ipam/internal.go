@@ -128,7 +128,7 @@ func (i *ipam) allocateIps(ctx context.Context, addArgs *models.IpamAllocArgs, p
 		return nil, logging.Errorf("get candidate ippool failed:%v", err)
 	}
 	if ippoolCandidate == nil {
-		return nil, logging.Errorf("ipppool candidate is nill")
+		return nil, logging.Errorf("ipppool candidate is nil")
 	}
 
 	res, err := i.allocateIPsFromAllCandidates(ctx, *addArgs.IfName, ippoolCandidate, pod, true)
@@ -295,22 +295,24 @@ func (i *ipam) allocateIPsFromAllCandidates(ctx context.Context, nic string, ipp
 		}
 	}
 
-	for _, v6pool := range ippools.IPv6Pools {
-		ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v6pool, true)
-		if err != nil {
-			logging.Errorf("get ippool:%s failed :%v", v6pool, err)
-			continue
-		} else {
-			if ippool.DeletionTimestamp != nil {
-				logging.Errorf("ippool:%s is deleting", v6pool)
+	if i.config.EnableIPv6 {
+		for _, v6pool := range ippools.IPv6Pools {
+			ippool, err := i.ippoolManager.GetIPPoolByName(ctx, v6pool, true)
+			if err != nil {
+				logging.Errorf("get ippool:%s failed :%v", v6pool, err)
 				continue
-			}
+			} else {
+				if ippool.DeletionTimestamp != nil {
+					logging.Errorf("ippool:%s is deleting", v6pool)
+					continue
+				}
 
-			if *ippool.Spec.IPVersion != constant.IPv6 {
-				logging.Errorf("ippool:%s is not ipv6", v6pool)
-				continue
+				if *ippool.Spec.IPVersion != constant.IPv6 {
+					logging.Errorf("ippool:%s is not ipv6", v6pool)
+					continue
+				}
+				IpV6PoolsMap[v6pool] = ippool
 			}
-			IpV6PoolsMap[v6pool] = ippool
 		}
 	}
 

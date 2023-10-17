@@ -17,7 +17,7 @@ func Daemon() {
 		logging.Panicf("new manger failed:%v", err)
 	}
 	ipamAgent.Mgr = mgr
-
+	ipamAgent.Cfg = ConfigInstance
 	//init manager
 	initManager()
 
@@ -42,7 +42,6 @@ func Daemon() {
 		ipamAgent.NodeMgr,
 	)
 	ipamAgent.IPAM = ipam
-	ipamAgent.Cfg = ConfigInstance
 	go func() {
 		err := mgr.Start(ipamAgent.InnerCtx)
 		if err != nil {
