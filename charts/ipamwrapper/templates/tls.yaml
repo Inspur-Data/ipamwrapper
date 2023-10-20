@@ -1,0 +1,195 @@
+{{- if (eq .Values.ipamwrapperController.tls.method "auto") }}
+{{- $_ := include "generate-ca-certs" . }}
+{{- end }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+  annotations:
+    {{- if (eq .Values.ipamwrapperController.tls.method "certmanager") }}
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}-server-certs
+    {{- end }}
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-inspuripam-inspur-com-v1-ippool
+      port: {{ .Values.ipamwrapperController.webhookPort }}
+    {{- if (eq .Values.ipamwrapperController.tls.method "provided") }}
+    caBundle: {{ .Values.ipamwrapperController.tls.provided.tlsCa | required "missing ipamwrapperController.tls.provided.tlsCa" }}
+    {{- else if (eq .Values.ipamwrapperController.tls.method "auto") }}
+    caBundle: {{ .ca.Cert | b64enc }}
+    {{- end }}
+  failurePolicy: Fail
+  name: ippool.ipamwrapper.inspur.io
+  rules:
+  - apiGroups:
+    - inspuripam.inspur.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - ippools
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-inspuripam-inspur-com-v1-ipamendpoint
+      port: {{ .Values.ipamwrapperController.webhookPort }}
+    {{- if (eq .Values.ipamwrapperController.tls.method "provided") }}
+    caBundle: {{ .Values.ipamwrapperController.tls.provided.tlsCa | required "missing ipamwrapperController.tls.provided.tlsCa" }}
+    {{- else if (eq .Values.ipamwrapperController.tls.method "auto") }}
+    caBundle: {{ .ca.Cert | b64enc }}
+    {{- end }}
+  failurePolicy: Fail
+  name: ipamendpoint.ipamwrapper.inspur.io
+  rules:
+  - apiGroups:
+    - inspuripam.inspur.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - ipamendpoints
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+  annotations:
+    {{- if (eq .Values.ipamwrapperController.tls.method "certmanager") }}
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}-server-certs
+    {{- end }}
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-inspuripam-inspur-com-v1-ippool
+      port: {{ .Values.ipamwrapperController.webhookPort }}
+    {{- if (eq .Values.ipamwrapperController.tls.method "provided") }}
+    caBundle: {{ .Values.ipamwrapperController.tls.provided.tlsCa | required "missing ipamwrapperController.tls.provided.tlsCa" }}
+    {{- else if (eq .Values.ipamwrapperController.tls.method "auto") }}
+    caBundle: {{ .ca.Cert | b64enc }}
+    {{- end }}
+  failurePolicy: Fail
+  name: ippools.ipamwrapper.inspur.io
+  rules:
+  - apiGroups:
+    - inspuripam.inspur.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    -  DELETE
+    resources:
+    - ippools
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-inspuripam-inspur-com-v1-ipamendpoint
+      port: {{ .Values.ipamwrapperController.webhookPort }}
+    {{- if (eq .Values.ipamwrapperController.tls.method "provided") }}
+    caBundle: {{ .Values.ipamwrapperController.tls.provided.tlsCa | required "missing ipamwrapperController.tls.provided.tlsCa" }}
+    {{- else if (eq .Values.ipamwrapperController.tls.method "auto") }}
+    caBundle: {{ .ca.Cert | b64enc }}
+    {{- end }}
+  failurePolicy: Fail
+  name: ipamendpoint.ipamwrapper.inspur.io
+  rules:
+  - apiGroups:
+    - inspuripam.inspur.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - ipamendpoints
+  sideEffects: None
+{{- if eq .Values.ipamwrapperController.tls.method "certmanager" -}}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}-server-certs
+  namespace: {{ .Release.Namespace }}
+spec:
+  issuerRef:
+    name: {{ .Values.ipamwrapperController.tls.certmanager.issuerName | trunc 63 | trimSuffix "-" }}
+  secretName: {{ .Values.ipamwrapperController.tls.secretName | trunc 63 | trimSuffix "-" }}
+  commonName: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}.{{ .Release.Namespace }}.svc
+  dnsNames:
+    - {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+    - {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}.{{ .Release.Namespace }}
+    - {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}.{{ .Release.Namespace }}.svc
+    - {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDnsDomain }}
+  {{- range $dns := .Values.ipamwrapperController.tls.certmanager.extraDnsNames }}
+  - {{ $dns | quote }}
+  {{- end }}
+  {{- if .Values.ipamwrapperController.tls.certmanager.extraIPAddresses }}
+  ipAddresses:
+  {{- range $ip := .Values.ipamwrapperController.tls.certmanager.extraIPAddresses }}
+  - {{ $ip | quote }}
+  {{- end }}
+  {{- end }}
+  duration: {{ printf "%dh" (mul .Values.ipamwrapperController.tls.certmanager.certValidityDuration 24) }}
+{{- end }}
+{{- if (eq .Values.ipamwrapperController.tls.method "provided") }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.ipamwrapperController.tls.secretName | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+type: kubernetes.io/tls
+data:
+  ca.crt:  {{ .Values.ipamwrapperController.tls.provided.tlsCa | required "missing ipamwrapperController.tls.provided.tlsCa" }}
+  tls.crt: {{ .Values.ipamwrapperController.tls.provided.tlsCert | required "missing ipamwrapperController.tls.provided.tlsCert" }}
+  tls.key: {{ .Values.ipamwrapperController.tls.provided.tlsKey  | required "missing ipamwrapperController.tls.provided.tlsKey"  }}
+{{- end }}
+{{- if eq .Values.ipamwrapperController.tls.method "auto" }}
+---
+{{- $cn := printf "inspur.io" }}
+{{- $ip := .Values.ipamwrapperController.tls.auto.extraIpAddresses }}
+{{- $dns1 := printf "%s.%s" .Values.ipamwrapperController.name .Release.Namespace }}
+{{- $dns2 := printf "%s.%s.svc" .Values.ipamwrapperController.name .Release.Namespace }}
+{{- $dns3 := printf "%s.%s.svc.%s" .Values.ipamwrapperController.name .Release.Namespace .Values.global.clusterDnsDomain }}
+{{- $dns := prepend .Values.ipamwrapperController.tls.auto.extraDnsNames $dns1 }}
+{{- $dns = prepend $dns $dns2 }}
+{{- $dns = prepend $dns $dns3 }}
+{{- $dns = prepend $dns $cn }}
+{{- $cert := genSignedCert $cn $ip $dns (.Values.ipamwrapperController.tls.auto.certExpiration | int) .ca }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.ipamwrapperController.tls.secretName | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+type: kubernetes.io/tls
+data:
+  ca.crt:  {{ .ca.Cert | b64enc }}
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key  | b64enc }}
+{{- end }}

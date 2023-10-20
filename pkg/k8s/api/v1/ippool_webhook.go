@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	ipamip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"github.com/Inspur-Data/ipamwrapper/pkg/types"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -65,7 +66,7 @@ var _ webhook.Validator = &IPPool{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *IPPool) ValidateCreate() (warnings admission.Warnings, err error) {
-	ippoollog.Info("validate create", "name", r.Name)
+	logging.Debugf("validate create", "name:%s", r.Name)
 	errlist := r.validCreate()
 	if len(errlist) != 0 {
 		return nil, apierrors.NewInvalid(schema.GroupKind{Group: constant.APIGroup, Kind: constant.IPPOOL}, r.Name, errlist)

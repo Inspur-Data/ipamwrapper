@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	ipamwrapperip "github.com/Inspur-Data/ipamwrapper/pkg/ip"
+	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"strconv"
 )
@@ -20,17 +21,20 @@ var (
 func (r *IPPool) validCreate() field.ErrorList {
 	//check ipversion
 	if err := r.validIPversion(); err != nil {
+		logging.Errorf("ipversion is invalid, err: %v", err)
 		return field.ErrorList{err}
 	}
 
 	//check CIDR
 	ctx := context.Background()
 	if err := r.validCIDR(ctx); err != nil {
+		logging.Errorf("CIDR is invalid, err: %v", err)
 		return field.ErrorList{err}
 	}
 
 	//check available ip
 	if err := r.validAvailableIPs(ctx); err != nil {
+		logging.Errorf("available ips is invalid, err: %v", err)
 		return field.ErrorList{err}
 	}
 
@@ -45,7 +49,7 @@ func (r *IPPool) validIPversion() *field.Error {
 		return field.Invalid(
 			ipVersionField,
 			version,
-			"is not generated correctly, 'spec.subnet' may be invalid",
+			"is not generated correctly, 'spec.ipVersion' may be invalid",
 		)
 	}
 
@@ -85,7 +89,14 @@ func (r *IPPool) validCIDR(ctx context.Context) *field.Error {
 			}
 
 			if pool.Spec.CIDR == r.Spec.CIDR {
-				continue
+				if r.isIPRangeOverlap(&pool) {
+					return field.Invalid(
+						ipsField,
+						r.Spec.IPs,
+						fmt.Sprintf("ips is overlaped with IPPool %s which 'spec.IPS' is %s", pool.Name, pool.Spec.IPs),
+					)
+				}
+
 			}
 
 			overlap, err := ipamwrapperip.IsCIDROverlap(*r.Spec.IPVersion, r.Spec.CIDR, pool.Spec.CIDR)
@@ -104,6 +115,17 @@ func (r *IPPool) validCIDR(ctx context.Context) *field.Error {
 	}
 
 	return nil
+}
+
+func (r *IPPool) isIPRangeOverlap(pool *IPPool) bool {
+	for _, iprange := range r.Spec.IPs {
+		for _, subIpRange := range pool.Spec.IPs {
+			if overlaped, _ := ipamwrapperip.IsIPRangeOverlap(*r.Spec.IPVersion, iprange, subIpRange); overlaped {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // validAvailableIPs check the ippool's available ips

@@ -1,0 +1,69 @@
+{{- if .Values.ipamwrapperAgent.prometheus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.ipamwrapperAgent.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- if or .Values.global.commonAnnotations .Values.ipamwrapperAgent.service.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ipamwrapperAgent.service.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperAgent.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- include "ipamwrapper.ipamwrapperAgent.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.ipamwrapperAgent.service.type }}
+  ports:
+    - name: metrics
+      port: {{ .Values.ipamwrapperAgent.prometheus.port }}
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    {{- include "ipamwrapper.ipamwrapperAgent.selectorLabels" . | nindent 4 }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.ipamwrapperController.name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- if or .Values.global.commonAnnotations .Values.ipamwrapperController.service.annotations }}
+  annotations:
+    {{- if .Values.global.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ipamwrapperController.service.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.ipamwrapperController.service.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- if .Values.global.commonLabels }}
+    {{- include "tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- include "ipamwrapper.ipamwrapperController.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.ipamwrapperController.service.type }}
+  ports:
+    {{- if .Values.ipamwrapperController.prometheus.enabled }}
+    - name: metrics
+      port: {{ .Values.ipamwrapperController.prometheus.port }}
+      targetPort: metrics
+      protocol: TCP
+    {{- end }}
+    - name: webhook
+      port: {{ .Values.ipamwrapperController.webhookPort }}
+      targetPort: 9443
+      protocol: TCP
+    - name: http
+      port: {{ .Values.ipamwrapperController.httpPort }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "ipamwrapper.ipamwrapperController.selectorLabels" . | nindent 4 }}

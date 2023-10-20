@@ -100,6 +100,7 @@ func main() {
 		// if you are doing or is intended to do any operation such as perform cleanups
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
+		CertDir: "/etc/tls",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -133,17 +134,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "IPAMEndpoint")
 		os.Exit(1)
 	}
-	/*
-		//webhook
-		if err = (&inspuripamv1.IPAMEndpoint{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "IPAMEndpoint")
-			os.Exit(1)
-		}
-		if err = (&inspuripamv1.IPPool{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "IPPool")
-			os.Exit(1)
-		}
-	*/
+
+	//webhook
+	if err = (&inspuripamv1.IPAMEndpoint{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "IPAMEndpoint")
+		os.Exit(1)
+	}
+	if err = (&inspuripamv1.IPPool{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "IPPool")
+		os.Exit(1)
+	}
+
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
