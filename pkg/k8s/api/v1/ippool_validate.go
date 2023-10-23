@@ -95,6 +95,8 @@ func (r *IPPool) validCIDR(ctx context.Context) *field.Error {
 						r.Spec.IPs,
 						fmt.Sprintf("ips is overlaped with IPPool %s which 'spec.IPS' is %s", pool.Name, pool.Spec.IPs),
 					)
+				} else {
+					continue
 				}
 
 			}

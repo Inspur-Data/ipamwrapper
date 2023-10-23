@@ -17,7 +17,9 @@ limitations under the License.
 package v1
 
 import (
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -70,7 +72,18 @@ func (r *IPAMEndpoint) ValidateUpdate(old runtime.Object) (warnings admission.Wa
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *IPAMEndpoint) ValidateDelete() (warnings admission.Warnings, err error) {
 	ipamendpointlog.Info("validate delete", "name", r.Name)
-
 	// TODO(user): fill in your validation logic upon object deletion.
+	/*
+		errList := r.validDelete()
+		if len(errList) != 0 {
+			return nil, apierrors.NewInvalid(schema.GroupKind{Group: constant.APIGroup, Kind: constant.ENDPOINTS}, r.Name, errList)
+		}*/
 	return nil, nil
+}
+func (r *IPAMEndpoint) validDelete() field.ErrorList {
+	if len(r.Status.IPs) > 0 {
+		err := field.InternalError(allocateIPField, fmt.Errorf("endpoint:%s  still has allocated IPs", r.Name))
+		return field.ErrorList{err}
+	}
+	return nil
 }

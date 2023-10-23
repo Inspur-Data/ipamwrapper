@@ -114,10 +114,10 @@ ipamwrapperAgent:
 
   image:
     ## @param ipamwrapperAgent.image.registry the image registry of ipamwrapperAgent
-    registry: ghcr.io
+    registry:
 
     ## @param ipamwrapperAgent.image.repository the image repository of ipamwrapperAgent
-    repository: inspurwyd/ipamwrapper
+    repository: ipamwrapper
 
     ## @param ipamwrapperAgent.image.pullPolicy the image pullPolicy of ipamwrapperAgent
     pullPolicy: IfNotPresent

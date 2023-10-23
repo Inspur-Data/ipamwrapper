@@ -57,4 +57,5 @@ const (
 	APIGroup   = "inspuripam.inspur.com"
 	APIVersion = "v1"
 	IPPOOL     = "ippool"
+	ENDPOINTS  = "ipamendpoint"
 )
