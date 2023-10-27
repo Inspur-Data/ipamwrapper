@@ -92,7 +92,6 @@ func cmdAdd(args *skel.CmdArgs) error {
 		logging.Errorf("convert the response failed:%v", err)
 		return err
 	}
-
 	return types.PrintResult(res, cniConfig.CNIVersion)
 
 }

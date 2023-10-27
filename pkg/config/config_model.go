@@ -18,6 +18,7 @@ type IPAMConf struct {
 	LogFile        string   `json:"log_file"`
 	LogLevel       string   `json:"log_level"`
 	UnixSocketPath string   `json:"unix_socket_path"`
+	IPPools        []IPPool `json:"ip_pools"`
 }
 
 var SupportCniVersion = []string{"0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.4.0", "1.0.0"}
@@ -32,5 +33,10 @@ type PodArgs struct {
 }
 type RouterNetConf struct {
 	types.NetConf
-	RouterConfig *models.RouterConfig  `json:"routers"`
+	RouterConfig *models.RouterConfig `json:"routers"`
+}
+type IPPool struct {
+	Name      string `json:"name"`
+	CIDR      string `json:"cidr"`
+	IPVersion int    `json:"ip_version"`
 }

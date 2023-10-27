@@ -20,7 +20,6 @@ func main() {
 			}
 		}()
 	}
-
 	srv, err := daemonset.NewAgentOpenAPIUnixServer()
 	//srv, err := daemonset.NewIPAMHttpServer()
 	if err != nil {

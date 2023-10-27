@@ -2,8 +2,10 @@ package ipam
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/Inspur-Data/ipamwrapper/api/v1/models"
+	"github.com/Inspur-Data/ipamwrapper/pkg/config"
 	"github.com/Inspur-Data/ipamwrapper/pkg/constant"
 	inspuripamv1 "github.com/Inspur-Data/ipamwrapper/pkg/k8s/api/v1"
 	"github.com/Inspur-Data/ipamwrapper/pkg/logging"
@@ -181,6 +183,19 @@ func (i *ipam) getCandidatePool(ctx context.Context, addArgs *models.IpamAllocAr
 		return ippools, nil
 	}
 
+	//get the default ippool from nad
+	ipamArs := addArgs.Ipam
+	IPAMConfigs := config.IPAMConf{}
+	err = json.Unmarshal([]byte(ipamArs), &IPAMConfigs)
+	if err != nil {
+		logging.Errorf("unmarshal ipam configs failed: %v", err)
+	}
+	nadippools := IPAMConfigs.IPPools
+	ippools, err = i.getDefaultIPPoolFromNad(ctx, *addArgs.IfName, nadippools)
+	if err == nil && ippools != nil {
+		return ippools, nil
+	}
+
 	//get the default ippool
 	ippools, err = i.getDefaultIPPool(ctx, *addArgs.IfName, true)
 	if err == nil && ippools != nil {
@@ -225,6 +240,24 @@ func (i *ipam) getDefaultIPPoolFromNetconf(ctx context.Context, nic string, defa
 	ippools := types.AnnoPodIPPoolValue{}
 	ippools.IPv4Pools = defaultIPv4Pool
 	ippools.IPv6Pools = defaultIPv6Pool
+	return &ippools, nil
+}
+
+// getDefaultIPPoolFromNad get the ippool from args
+func (i *ipam) getDefaultIPPoolFromNad(ctx context.Context, nic string, nadippools []config.IPPool) (*types.AnnoPodIPPoolValue, error) {
+	if len(nadippools) == 0 {
+		logging.Warningf("ipv4 and ipv6 ippool is nil in the nad scene")
+		return nil, nil
+	}
+
+	ippools := types.AnnoPodIPPoolValue{}
+	for _, pool := range nadippools {
+		if pool.IPVersion == int(constant.IPv4) {
+			ippools.IPv4Pools = append(ippools.IPv4Pools, pool.Name)
+		} else if pool.IPVersion == int(constant.IPv6) {
+			ippools.IPv6Pools = append(ippools.IPv6Pools, pool.Name)
+		}
+	}
 	return &ippools, nil
 }
 
