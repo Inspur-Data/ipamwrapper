@@ -126,7 +126,7 @@ ipamwrapperAgent:
     digest: ""
 
     ## @param ipamwrapperAgent.image.tag the image tag of ipamwrapperAgent, overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "v1.0"
 
     ## @param ipamwrapperAgent.image.imagePullSecrets the image imagePullSecrets of ipamwrapperAgent
     imagePullSecrets: []

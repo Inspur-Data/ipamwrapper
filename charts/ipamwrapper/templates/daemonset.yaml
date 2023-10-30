@@ -104,7 +104,7 @@ spec:
           postStart:
             # Move an eventual old existing binary out of the way, we can't delete it as it might be in use right now
             exec:
-              command: [ "/bin/sh", "-c", "if [ -f '/host/opt/cni/bin/ipamwrapper' ];then rm -f /host/opt/cni/bin/ipamwrapper.old ; mv /host/opt/cni/bin/ipamwrapper /host/opt/cni/bin/ipamwrapper.old ; fi; cp /usr/bin/ipamwrapper  /host/opt/cni/bin/ipamwrapper ; rm -f /host/opt/cni/bin/ipamwrapper.old &>/dev/null || true " ]
+              command: [ "/bin/sh", "-c", "if [ -f '/host/opt/cni/bin/ipamwrapper' ];then rm -f /host/opt/cni/bin/ipamwrapper.old ; mv /host/opt/cni/bin/ipamwrapper /host/opt/cni/bin/ipamwrapper.old ; fi; cp /usr/bin/ipamwrapper  /host/opt/cni/bin/ipamwrapper ; cp /usr/bin/router  /host/opt/cni/bin/router ; rm -f /host/opt/cni/bin/ipamwrapper.old &>/dev/null || true " ]
           preStop:
             exec:
               command:
