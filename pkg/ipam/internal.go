@@ -245,6 +245,7 @@ func (i *ipam) getDefaultIPPoolFromNetconf(ctx context.Context, nic string, defa
 
 // getDefaultIPPoolFromNad get the ippool from args
 func (i *ipam) getDefaultIPPoolFromNad(ctx context.Context, nic string, nadippools []config.IPPool) (*types.AnnoPodIPPoolValue, error) {
+	logging.Debugf("origin ippools from nad: %+v", nadippools)
 	if len(nadippools) == 0 {
 		logging.Warningf("ipv4 and ipv6 ippool is nil in the nad scene")
 		return nil, nil
@@ -258,6 +259,7 @@ func (i *ipam) getDefaultIPPoolFromNad(ctx context.Context, nic string, nadippoo
 			ippools.IPv6Pools = append(ippools.IPv6Pools, pool.Name)
 		}
 	}
+	logging.Debugf("ippools from nad: %+v", ippools)
 	return &ippools, nil
 }
 
@@ -494,6 +496,7 @@ func (i *ipam) release(ctx context.Context, uid string, details []inspuripamv1.I
 
 // checkAffinity filter the ippool by nodeAffinity and namespaceAffinity
 func (i *ipam) checkAffinity(ctx context.Context, IppoolsMap map[string]*inspuripamv1.IPPool, pod *corev1.Pod) error {
+	logging.Debugf("in checkAffinity ippoolMap: %+v", IppoolsMap)
 	for poolname, pool := range IppoolsMap {
 		if pool.Spec.NodeAffinity != nil {
 			node, err := i.nodeManager.GetNodeByName(ctx, pod.Spec.NodeName, constant.UseCache)
